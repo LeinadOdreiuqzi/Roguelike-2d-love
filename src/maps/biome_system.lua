@@ -1,4 +1,4 @@
--- src/maps/biome_system.lua (SISTEMA 3D CON FALSA ALTURA INSPIRADO EN MINECRAFT)
+-- src/maps/biome_system.lua 
 
 local BiomeSystem = {}
 local PerlinNoise = require 'src.maps.perlin_noise'
@@ -16,59 +16,58 @@ BiomeSystem.BiomeType = {
     ANCIENT_RUINS = 6         -- Zona de Civilización Antigua (extremadamente raro)
 }
 
--- Configuración de parámetros espaciales (inspirados en Minecraft)
+-- Configuración de parámetros espaciales
 BiomeSystem.SpaceParameters = {
-    -- Energía Espacial (equivale a Temperature en Minecraft)
+    -- Energía Espacial (temperatura)
     energy = {
         levels = {
-            {min = -1.0, max = -0.45, name = "FROZEN"},      -- Zonas muertas
-            {min = -0.45, max = -0.15, name = "COLD"},       -- Zonas frías
-            {min = -0.15, max = 0.2, name = "TEMPERATE"},    -- Zonas templadas
-            {min = 0.2, max = 0.55, name = "WARM"},          -- Zonas cálidas
-            {min = 0.55, max = 1.0, name = "HOT"}            -- Zonas ardientes
+            {min = -1.0, max = -0.45, name = "FROZEN"},
+            {min = -0.45, max = -0.15, name = "COLD"},
+            {min = -0.15, max = 0.2, name = "TEMPERATE"},
+            {min = 0.2, max = 0.55, name = "WARM"},
+            {min = 0.55, max = 1.0, name = "HOT"}
         }
     },
     
-    -- Densidad de Materia (equivale a Humidity en Minecraft)
+    -- Densidad de Materia
     density = {
         levels = {
-            {min = -1.0, max = -0.35, name = "VOID"},        -- Vacío total
-            {min = -0.35, max = -0.1, name = "SPARSE"},      -- Disperso
-            {min = -0.1, max = 0.1, name = "NORMAL"},        -- Normal
-            {min = 0.1, max = 0.3, name = "DENSE"},          -- Denso
-            {min = 0.3, max = 1.0, name = "ULTRA_DENSE"}     -- Ultra denso
+            {min = -1.0, max = -0.35, name = "VOID"},
+            {min = -0.35, max = -0.1, name = "SPARSE"},
+            {min = -0.1, max = 0.1, name = "NORMAL"},
+            {min = 0.1, max = 0.3, name = "DENSE"},
+            {min = 0.3, max = 1.0, name = "ULTRA_DENSE"}
         }
     },
     
-    -- Distancia desde Deep Space (equivale a Continentalness)
+    -- Distancia desde Deep Space (continentalness)
     continentalness = {
         levels = {
-            {min = -1.2, max = -1.05, name = "DEEP_OCEAN"},     -- Deep Space profundo
-            {min = -1.05, max = -0.455, name = "OCEAN"},        -- Deep Space normal
-            {min = -0.455, max = -0.19, name = "COAST"},        -- Borde espacial
-            {min = -0.19, max = 0.03, name = "NEAR_INLAND"},    -- Cerca de estructuras
-            {min = 0.03, max = 0.3, name = "MID_INLAND"},      -- Zonas medias
-            {min = 0.3, max = 1.0, name = "FAR_INLAND"}        -- Zonas lejanas
+            {min = -1.2, max = -1.05, name = "DEEP_OCEAN"},
+            {min = -1.05, max = -0.455, name = "OCEAN"},
+            {min = -0.455, max = -0.19, name = "COAST"},
+            {min = -0.19, max = 0.03, name = "NEAR_INLAND"},
+            {min = 0.03, max = 0.3, name = "MID_INLAND"},
+            {min = 0.3, max = 1.0, name = "FAR_INLAND"}
         }
     },
     
-    -- Turbulencia Espacial (equivale a Erosion)
+    -- Turbulencia Espacial
     turbulence = {
         levels = {
-            {min = -1.0, max = -0.78, name = "EXTREME"},     -- Turbulencia extrema
-            {min = -0.78, max = -0.375, name = "HIGH"},      -- Alta turbulencia
-            {min = -0.375, max = -0.2225, name = "MEDIUM"}, -- Turbulencia media
-            {min = -0.2225, max = 0.05, name = "LOW"},       -- Baja turbulencia
-            {min = 0.05, max = 0.45, name = "MINIMAL"},      -- Turbulencia mínima
-            {min = 0.45, max = 1.0, name = "STABLE"}         -- Estable
+            {min = -1.0, max = -0.78, name = "EXTREME"},
+            {min = -0.78, max = -0.375, name = "HIGH"},
+            {min = -0.375, max = -0.2225, name = "MEDIUM"},
+            {min = -0.2225, max = 0.05, name = "LOW"},
+            {min = 0.05, max = 0.45, name = "MINIMAL"},
+            {min = 0.45, max = 1.0, name = "STABLE"}
         }
     },
     
-    -- Anomalías Gravitatorias (equivale a Weirdness)
+    -- Anomalías
     weirdness = {
         levels = {
-            {min = -1.0, max = -0.93333, name = "ULTRA_WEIRD"},
-            {min = -0.93333, max = -0.7, name = "VERY_WEIRD"},
+            {min = -1.0, max = -0.7, name = "VERY_WEIRD"},
             {min = -0.7, max = -0.26667, name = "WEIRD"},
             {min = -0.26667, max = 0.26667, name = "NORMAL"},
             {min = 0.26667, max = 0.7, name = "POSITIVE_WEIRD"},
@@ -77,26 +76,25 @@ BiomeSystem.SpaceParameters = {
     }
 }
 
--- CONFIGURACIÓN MEJORADA para distribución 3D natural
+-- CONFIGURACIÓN BALANCEADA para distribución natural (SIN RESTRICCIONES DE ALTURA)
 BiomeSystem.biomeConfigs = {
     [BiomeSystem.BiomeType.DEEP_SPACE] = {
         name = "Deep Space",
         rarity = "Very Common",
-        color = {0.02, 0.02, 0.1, 1},
-        spawnWeight = 0.45,  -- 45% del mapa - océano espacial (reducido para más variedad)
+        color = {0.05, 0.05, 0.15, 1},  -- Azul muy oscuro más visible
+        spawnWeight = 0.40,  -- 40% del mapa - océano espacial
         
-        -- Condiciones 3D para generar este bioma
         conditions = {
-            continentalness = {"DEEP_OCEAN", "OCEAN", "COAST"},  -- Actúa como océano
-            energy = {"FROZEN", "COLD", "TEMPERATE", "WARM"},   -- Temperaturas bajas-medias
-            density = {"VOID", "SPARSE", "NORMAL", "DENSE"},     -- Densidades bajas-normales
-            turbulence = {"LOW", "MINIMAL", "STABLE", "MEDIUM"},  -- Poco turbulento
-            weirdness = {"NORMAL", "POSITIVE_WEIRD"},                     -- Sin anomalías
-            depthRange = {0.0, 1.0}                     -- Todas las alturas
+            continentalness = {"DEEP_OCEAN", "OCEAN"},  -- Principalmente zonas oceánicas
+            energy = nil,  -- Cualquier temperatura
+            density = {"VOID", "SPARSE"},  -- Baja densidad
+            turbulence = nil,  -- Cualquier turbulencia
+            weirdness = nil,  -- Cualquier anomalía
+            depthRange = {0.0, 1.0}  -- TODA altura válida
         },
         
-        coherenceRadius = 12,
-        biomeScale = 0.015,
+        coherenceRadius = 8,
+        biomeScale = 0.02,
         properties = {
             visibility = 1.0,
             mobility = 1.0,
@@ -108,25 +106,21 @@ BiomeSystem.biomeConfigs = {
     [BiomeSystem.BiomeType.NEBULA_FIELD] = {
         name = "Nebula Field",
         rarity = "Common",
-        color = {0.1, 0.05, 0.2, 1},
-        spawnWeight = 0.25,  -- 25% del mapa (aumentado)
+        color = {0.3, 0.15, 0.45, 1},  -- Púrpura más brillante
+        spawnWeight = 0.25,  -- 25% del mapa
         
         conditions = {
-            continentalness = {"COAST", "NEAR_INLAND", "MID_INLAND"},
-            energy = {"TEMPERATE", "WARM", "HOT"},
-            density = {"DENSE", "ULTRA_DENSE", "NORMAL"},         -- Densidades altas
-            turbulence = {"MEDIUM", "HIGH", "EXTREME"},            -- Más turbulento
-            weirdness = {"NORMAL", "POSITIVE_WEIRD", "WEIRD"},
-            depthRange = {0.0, 1.0}                     -- Todas las alturas (ampliado)
+            continentalness = {"COAST", "NEAR_INLAND"},
+            energy = {"TEMPERATE", "WARM"},
+            density = {"DENSE", "ULTRA_DENSE"},
+            turbulence = nil,  -- Cualquier turbulencia
+            weirdness = {"NORMAL"},
+            depthRange = {0.0, 1.0}  -- TODA altura válida (cambiado de 0.2-0.8)
         },
         
-        coherenceRadius = 8,
+        coherenceRadius = 6,
         biomeScale = 0.025,
-        specialFeatures = {
-            "dense_nebula",
-            "nebula_storm",
-            "hidden_station"
-        },
+        specialFeatures = {"dense_nebula", "nebula_storm"},
         properties = {
             visibility = 0.7,
             mobility = 0.8,
@@ -138,26 +132,21 @@ BiomeSystem.biomeConfigs = {
     [BiomeSystem.BiomeType.ASTEROID_BELT] = {
         name = "Asteroid Belt",
         rarity = "Uncommon",
-        color = {0.15, 0.1, 0.05, 1},
-        spawnWeight = 0.20,  -- 20% del mapa (aumentado)
+        color = {0.35, 0.25, 0.15, 1},  -- Marrón más claro
+        spawnWeight = 0.20,  -- 20% del mapa
         
         conditions = {
-            continentalness = {"MID_INLAND", "FAR_INLAND", "NEAR_INLAND"},
-            energy = {"COLD", "TEMPERATE", "WARM"},
-            density = {"NORMAL", "DENSE", "SPARSE"},
-            turbulence = {"HIGH", "EXTREME", "MEDIUM"},           -- Muy turbulento
-            weirdness = {"NORMAL", "WEIRD"},
-            depthRange = {0.0, 1.0}                     -- Todas las alturas (ampliado)
+            continentalness = {"NEAR_INLAND", "MID_INLAND"},
+            energy = {"COLD", "TEMPERATE"},
+            density = {"NORMAL", "DENSE"},
+            turbulence = {"HIGH", "MEDIUM"},
+            weirdness = nil,
+            depthRange = {0.0, 1.0}  -- TODA altura válida
         },
         
-        coherenceRadius = 6,
-        biomeScale = 0.035,
-        specialFeatures = {
-            "mega_asteroid",
-            "mining_station",
-            "asteroid_cluster",
-            "hidden_cave"
-        },
+        coherenceRadius = 5,
+        biomeScale = 0.03,
+        specialFeatures = {"mega_asteroid", "asteroid_cluster"},
         properties = {
             visibility = 0.9,
             mobility = 0.6,
@@ -169,26 +158,21 @@ BiomeSystem.biomeConfigs = {
     [BiomeSystem.BiomeType.GRAVITY_ANOMALY] = {
         name = "Gravity Anomaly",
         rarity = "Rare",
-        color = {0.2, 0.05, 0.2, 1},
-        spawnWeight = 0.05,  -- 5% del mapa (ligeramente aumentado)
+        color = {0.5, 0.15, 0.5, 1},  -- Magenta más brillante
+        spawnWeight = 0.08,  -- 8% del mapa
         
         conditions = {
-            continentalness = {"NEAR_INLAND", "MID_INLAND", "FAR_INLAND"},
-            energy = {"HOT", "WARM", "TEMPERATE"},                   -- Energía alta
-            density = {"SPARSE", "NORMAL", "DENSE"},
-            turbulence = {"EXTREME", "HIGH", "MEDIUM"},           -- Turbulencia extrema
-            weirdness = {"WEIRD", "VERY_WEIRD", "ULTRA_WEIRD"},        -- Anomalías importantes
-            depthRange = {0.0, 1.0}                     -- Todas las alturas (ampliado)
+            continentalness = {"MID_INLAND", "FAR_INLAND"},
+            energy = {"HOT", "WARM"},
+            density = nil,
+            turbulence = {"EXTREME", "HIGH"},
+            weirdness = {"WEIRD", "VERY_WEIRD"},
+            depthRange = {0.0, 1.0}  -- TODA altura válida
         },
         
         coherenceRadius = 4,
-        biomeScale = 0.05,
-        specialFeatures = {
-            "gravity_well",
-            "space_distortion",
-            "floating_debris",
-            "gravity_storm"
-        },
+        biomeScale = 0.04,
+        specialFeatures = {"gravity_well", "space_distortion"},
         properties = {
             visibility = 0.8,
             mobility = 0.4,
@@ -200,25 +184,21 @@ BiomeSystem.biomeConfigs = {
     [BiomeSystem.BiomeType.RADIOACTIVE_ZONE] = {
         name = "Radioactive Zone",
         rarity = "Very Rare",
-        color = {0.05, 0.2, 0.05, 1},
-        spawnWeight = 0.03,  -- 3% del mapa (ligeramente aumentado)
+        color = {0.15, 0.5, 0.15, 1},  -- Verde radiactivo más brillante
+        spawnWeight = 0.05,  -- 5% del mapa
         
         conditions = {
             continentalness = {"FAR_INLAND"},
             energy = {"HOT"},
             density = {"ULTRA_DENSE"},
             turbulence = {"EXTREME"},
-            weirdness = {"ULTRA_WEIRD"},
-            depthRange = {0.0, 1.0}                     -- Todas las alturas (ampliado)
+            weirdness = {"VERY_WEIRD", "ULTRA_POSITIVE_WEIRD"},
+            depthRange = {0.0, 1.0}  -- TODA altura válida (cambiado de 0.0-0.3)
         },
         
         coherenceRadius = 3,
-        biomeScale = 0.06,
-        specialFeatures = {
-            "radioactive_core",
-            "mutated_flora",
-            "abandoned_lab"
-        },
+        biomeScale = 0.05,
+        specialFeatures = {"radioactive_core", "mutated_flora"},
         properties = {
             visibility = 0.6,
             mobility = 0.3,
@@ -229,26 +209,22 @@ BiomeSystem.biomeConfigs = {
     
     [BiomeSystem.BiomeType.ANCIENT_RUINS] = {
         name = "Ancient Ruins",
-        rarity = "Extremely Rare",
-        color = {0.1, 0.1, 0.1, 1},
-        spawnWeight = 0.02,  -- 2% del mapa (ligeramente aumentado)
+        rarity = "Extremely Rare", 
+        color = {0.25, 0.25, 0.3, 1},  -- Gris azulado más visible
+        spawnWeight = 0.02,  -- 2% del mapa
         
         conditions = {
             continentalness = {"FAR_INLAND"},
             energy = {"FROZEN", "HOT"},
             density = {"ULTRA_DENSE"},
-            turbulence = {"EXTREME"},
-            weirdness = {"ULTRA_WEIRD", "ULTRA_POSITIVE_WEIRD"},
-            depthRange = {0.0, 1.0}                     -- Todas las alturas (ampliado)
+            turbulence = {"STABLE", "MINIMAL"},
+            weirdness = {"ULTRA_POSITIVE_WEIRD"},
+            depthRange = {0.0, 1.0}  -- TODA altura válida (cambiado de 0.7-1.0)
         },
         
         coherenceRadius = 2,
-        biomeScale = 0.07,
-        specialFeatures = {
-            "ancient_artifact",
-            "alien_structure",
-            "lost_technology"
-        },
+        biomeScale = 0.06,
+        specialFeatures = {"ancient_artifact", "alien_structure"},
         properties = {
             visibility = 0.5,
             mobility = 0.2,
@@ -256,7 +232,6 @@ BiomeSystem.biomeConfigs = {
             gravity = 1.5
         }
     }
-
 }
 
 -- Cache y configuración
@@ -266,7 +241,7 @@ BiomeSystem.debugInfo = {
     lastPlayerBiome = nil,
     biomeChangeCount = 0
 }
-BiomeSystem.debugMode = true -- Establecer a true para depurar, false para producción
+BiomeSystem.debugMode = false
 BiomeSystem.seed = 12345
 BiomeSystem.numericSeed = 12345
 
@@ -309,16 +284,11 @@ function BiomeSystem.init(seed)
     -- Inicializar Perlin con semilla numérica
     PerlinNoise.init(BiomeSystem.numericSeed)
     
-    print("3D ENHANCED Biome System initialized with seed: " .. tostring(BiomeSystem.seed))
+    print("3D Biome System initialized with seed: " .. tostring(BiomeSystem.seed))
     print("Numeric seed: " .. BiomeSystem.numericSeed)
-    print("World limits: ±" .. BiomeSystem.WORLD_LIMIT .. " units")
-    print("Using 6-parameter 3D biome generation system:")
-    print("  • Energy (spatial temperature)")
-    print("  • Density (matter concentration)")
-    print("  • Continentalness (distance from deep space)")
-    print("  • Turbulence (spatial stability)")
-    print("  • Weirdness (gravitational anomalies)")
-    print("  • Depth (false height dimension)")
+    print("Using improved 6-parameter generation with proper distribution")
+    print("Height dimension affects object density, not biome visibility")
+    print("All biomes can appear at any height for 2D top-down view")
 end
 
 -- Verificar límites del mundo
@@ -326,31 +296,35 @@ function BiomeSystem.isWithinWorldLimits(x, y)
     return math.abs(x) <= BiomeSystem.WORLD_LIMIT and math.abs(y) <= BiomeSystem.WORLD_LIMIT
 end
 
--- Calcular altura falsa basada en posición (X,Y)
+-- Calcular altura falsa basada en posición (solo para variación visual)
 function BiomeSystem.calculateFalseHeight(worldX, worldY)
-    -- Normalizar coordenadas al rango del mundo
-    local normalizedX = worldX / BiomeSystem.WORLD_LIMIT
-    local normalizedY = worldY / BiomeSystem.WORLD_LIMIT
+    -- Usar múltiples octavas para altura más natural con escalas más grandes
+    local scale1 = 0.00005  -- Escala muy grande para continentes (más grande)
+    local scale2 = 0.0002   -- Escala media para regiones (más grande)
+    local scale3 = 0.001    -- Escala pequeña para detalles (más grande)
     
-    -- Usar ruido de baja frecuencia para calcular la "altura falsa"
-    local heightNoise1 = PerlinNoise.noise(normalizedX * 0.1, normalizedY * 0.1, 0) -- Baja frecuencia
-    local heightNoise2 = PerlinNoise.noise(normalizedX * 0.3, normalizedY * 0.3, 100) -- Media frecuencia
-    local heightNoise3 = PerlinNoise.noise(normalizedX * 0.8, normalizedY * 0.8, 200) -- Alta frecuencia
+    local height1 = PerlinNoise.noise(worldX * scale1, worldY * scale1, 0)
+    local height2 = PerlinNoise.noise(worldX * scale2, worldY * scale2, 100)
+    local height3 = PerlinNoise.noise(worldX * scale3, worldY * scale3, 200)
     
-    -- Combinar octavas para crear variación de altura
-    local combinedHeight = (heightNoise1 * 0.6 + heightNoise2 * 0.3 + heightNoise3 * 0.1)
+    -- Combinar con pesos decrecientes
+    local combinedHeight = height1 * 0.5 + height2 * 0.3 + height3 * 0.2
     
-    -- Normalizar a rango [0, 1]
-    combinedHeight = (combinedHeight + 1) * 0.5
+    -- Normalizar a [0, 1]
+    local normalized = (combinedHeight + 1) * 0.5
     
-    -- Añadir efecto de "capas" como en Minecraft, pero más sutil
-    local layerEffect = math.sin(combinedHeight * math.pi * 2) * 0.05 -- Reducir la frecuencia y la intensidad
-    combinedHeight = math.max(0, math.min(1, combinedHeight + layerEffect))
-    
-    return combinedHeight
+    -- Clamp para asegurar rango válido
+    return math.max(0, math.min(1, normalized))
 end
 
--- Generar parámetros espaciales 3D para una posición
+-- Hash determinista para chunk
+function BiomeSystem.hashChunk(chunkX, chunkY)
+    -- Crear un hash único y determinista para cada chunk
+    local hash = ((chunkX * 73856093) + (chunkY * 19349663)) % 2147483647
+    return (hash + BiomeSystem.numericSeed) % 2147483647
+end
+
+-- Generar parámetros espaciales 3D mejorados
 function BiomeSystem.generateSpaceParameters(chunkX, chunkY)
     local cacheKey = chunkX .. "," .. chunkY
     
@@ -358,12 +332,12 @@ function BiomeSystem.generateSpaceParameters(chunkX, chunkY)
         return BiomeSystem.parameterCache[cacheKey]
     end
     
-    -- Verificar límites del mundo
-    local worldX = chunkX * 48 * 32  -- Convertir chunk a coordenadas del mundo
+    -- Coordenadas del mundo
+    local worldX = chunkX * 48 * 32
     local worldY = chunkY * 48 * 32
     
+    -- Verificar límites
     if not BiomeSystem.isWithinWorldLimits(worldX, worldY) then
-        -- Fuera de los límites - devolver Deep Space
         local params = {
             energy = -0.8,
             density = -0.9,
@@ -376,57 +350,53 @@ function BiomeSystem.generateSpaceParameters(chunkX, chunkY)
         return params
     end
     
-    -- Normalizar coordenadas
-    local normalizedX = worldX / BiomeSystem.WORLD_LIMIT
-    local normalizedY = worldY / BiomeSystem.WORLD_LIMIT
-    
-    -- Calcular altura falsa
+    -- Calcular altura falsa (solo para variación visual)
     local falseHeight = BiomeSystem.calculateFalseHeight(worldX, worldY)
     
-    -- Generar parámetros usando ruido 3D
-    local baseScale = 0.05
-    local detailScale = 0.15
+    -- ESCALAS AJUSTADAS para mejor distribución visible
+    local energyScale = 0.0002     -- Más grande para regiones más amplias
+    local densityScale = 0.0003    -- Más grande para regiones más amplias
+    local contScale = 0.00015      -- Más grande para continentes más visibles
+    local turbScale = 0.0004       -- Escala media
+    local weirdScale = 0.00025     -- Escala media
     
-    -- ENERGÍA ESPACIAL (equivale a temperatura)
-    local energy1 = PerlinNoise.noise(normalizedX * baseScale, normalizedY * baseScale, falseHeight * 0.5)
-    local energy2 = PerlinNoise.noise(normalizedX * detailScale, normalizedY * detailScale, falseHeight * 2.0 + 50)
-    local energy = (energy1 * 0.7 + energy2 * 0.3)
+    -- ENERGÍA ESPACIAL (temperatura)
+    local energy = PerlinNoise.noise(worldX * energyScale, worldY * energyScale, 0)
+    energy = energy + PerlinNoise.noise(worldX * energyScale * 3, worldY * energyScale * 3, 50) * 0.3
     
-    -- Modificar energía por altura (más alto = más frío, como en Minecraft)
-    energy = energy - (falseHeight - 0.5) * 0.4
+    -- DENSIDAD DE MATERIA
+    local density = PerlinNoise.noise(worldX * densityScale + 1000, worldY * densityScale + 1000, 100)
+    density = density + PerlinNoise.noise(worldX * densityScale * 2.5, worldY * densityScale * 2.5, 150) * 0.4
     
-    -- DENSIDAD DE MATERIA (equivale a humedad)
-    local density1 = PerlinNoise.noise(normalizedX * baseScale + 100, normalizedY * baseScale + 100, falseHeight * 0.3 + 100)
-    local density2 = PerlinNoise.noise(normalizedX * detailScale + 100, normalizedY * detailScale + 100, falseHeight * 1.5 + 150)
-    local density = (density1 * 0.6 + density2 * 0.4)
+    -- CONTINENTALIDAD - Crear "islas" de biomas más grandes
+    local cont1 = PerlinNoise.noise(worldX * contScale, worldY * contScale, 200)
+    local cont2 = PerlinNoise.noise(worldX * contScale * 0.5, worldY * contScale * 0.5, 250)
+    local cont3 = PerlinNoise.noise(worldX * contScale * 2, worldY * contScale * 2, 280) * 0.2
+    local continentalness = cont1 * 0.6 + cont2 * 0.3 + cont3 * 0.1
     
-    -- Ajustar densidad por energía (zonas muy calientes o muy frías tienen menos materia)
-    local energyEffect = 1.0 - math.abs(energy) * 0.3
-    density = density * energyEffect
+    -- Amplificar para crear islas más definidas
+    continentalness = continentalness * 1.8
+    continentalness = math.max(-1.2, math.min(1, continentalness))
     
-    -- CONTINENTALIDAD (distancia desde deep space)
-    local cont1 = PerlinNoise.noise(normalizedX * baseScale * 0.8 + 200, normalizedY * baseScale * 0.8 + 200, falseHeight * 0.4 + 200)
-    local cont2 = PerlinNoise.noise(normalizedX * 0.06 + 250, normalizedY * 0.06 + 250, falseHeight * 1.2 + 250)
-    local continentalness = (cont1 * 0.8 + cont2 * 0.2)
+    -- TURBULENCIA ESPACIAL
+    local turbulence = PerlinNoise.noise(worldX * turbScale + 2000, worldY * turbScale + 2000, 300)
+    turbulence = turbulence + PerlinNoise.noise(worldX * turbScale * 2, worldY * turbScale * 2, 350) * 0.3
     
-    -- TURBULENCIA ESPACIAL (equivale a erosión)
-    local turb1 = PerlinNoise.noise(normalizedX * 0.04 + 300, normalizedY * 0.04 + 300, falseHeight * 0.8 + 300)
-    local turb2 = PerlinNoise.noise(normalizedX * 0.12 + 350, normalizedY * 0.12 + 350, falseHeight * 2.5 + 350)
-    local turbulence = (turb1 * 0.5 + turb2 * 0.5)
+    -- ANOMALÍAS (weirdness)
+    local weirdness = PerlinNoise.noise(worldX * weirdScale + 3000, worldY * weirdScale + 3000, 400)
+    weirdness = weirdness + PerlinNoise.noise(worldX * weirdScale * 4, worldY * weirdScale * 4, 450) * 0.2
     
-    -- ANOMALÍAS GRAVITATORIAS (weirdness)
-    local weird1 = PerlinNoise.noise(normalizedX * 0.03 + 400, normalizedY * 0.03 + 400, falseHeight * 0.6 + 400)
-    local weird2 = PerlinNoise.noise(normalizedX * 0.09 + 450, normalizedY * 0.09 + 450, falseHeight * 1.8 + 450)
-    local weirdness = (weird1 * 0.7 + weird2 * 0.3)
+    -- La altura solo afecta sutilmente otros parámetros (no bloquea biomas)
+    energy = energy - (falseHeight - 0.5) * 0.2  -- Efecto más suave
+    density = density * (1.0 - math.abs(energy) * 0.15)  -- Efecto más suave
     
-    -- Crear estructura de parámetros
     local params = {
         energy = math.max(-1, math.min(1, energy)),
         density = math.max(-1, math.min(1, density)),
-        continentalness = math.max(-1.2, math.min(1, continentalness)),
+        continentalness = continentalness,
         turbulence = math.max(-1, math.min(1, turbulence)),
         weirdness = math.max(-1, math.min(1, weirdness)),
-        depth = falseHeight
+        depth = falseHeight  -- Solo para modificar densidades, no para bloquear
     }
     
     BiomeSystem.parameterCache[cacheKey] = params
@@ -443,83 +413,47 @@ function BiomeSystem.findParameterLevel(value, parameterType)
         end
     end
     
-    -- Fallback al nivel más cercano
-    local closestLevel = levels[1]
-    local minDistance = math.abs(value - (levels[1].min + levels[1].max) / 2)
-    
-    for _, level in ipairs(levels) do
-        local levelCenter = (level.min + level.max) / 2
-        local distance = math.abs(value - levelCenter)
-        if distance < minDistance then
-            minDistance = distance
-            closestLevel = level
-        end
-    end
-    
-    return closestLevel.name
+    return levels[1].name  -- Fallback
 end
 
 -- Verificar si los parámetros coinciden con las condiciones del bioma
 function BiomeSystem.matchesBiomeConditions(params, conditions)
-    -- Verificar rango de profundidad
-    if params.depth < conditions.depthRange[1] or params.depth > conditions.depthRange[2] then
+    -- La altura NO bloquea biomas en vista 2D cenital, edit: igual no se ve xd
+    -- Solo se usa para modificar densidades en modifyDensities()
+    
+    -- Función auxiliar para verificar condición
+    local function checkCondition(paramValue, paramType, allowedLevels)
+        if not allowedLevels then return true end  -- nil significa cualquier valor
+        
+        local level = BiomeSystem.findParameterLevel(paramValue, paramType)
+        for _, allowedLevel in ipairs(allowedLevels) do
+            if level == allowedLevel then
+                return true
+            end
+        end
         return false
     end
     
-    -- Verificar continentalidad
-    local contLevel = BiomeSystem.findParameterLevel(params.continentalness, "continentalness")
-    local contMatch = false
-    for _, allowedLevel in ipairs(conditions.continentalness) do
-        if contLevel == allowedLevel then
-            contMatch = true
-            break
-        end
+    -- Verificar cada condición (excepto altura que ya no bloquea)
+    if not checkCondition(params.continentalness, "continentalness", conditions.continentalness) then
+        return false
     end
-    if not contMatch then return false end
     
-    -- Verificar energía
-    local energyLevel = BiomeSystem.findParameterLevel(params.energy, "energy")
-    local energyMatch = false
-    for _, allowedLevel in ipairs(conditions.energy) do
-        if energyLevel == allowedLevel then
-            energyMatch = true
-            break
-        end
+    if not checkCondition(params.energy, "energy", conditions.energy) then
+        return false
     end
-    if not energyMatch then return false end
     
-    -- Verificar densidad
-    local densityLevel = BiomeSystem.findParameterLevel(params.density, "density")
-    local densityMatch = false
-    for _, allowedLevel in ipairs(conditions.density) do
-        if densityLevel == allowedLevel then
-            densityMatch = true
-            break
-        end
+    if not checkCondition(params.density, "density", conditions.density) then
+        return false
     end
-    if not densityMatch then return false end
     
-    -- Verificar turbulencia
-    local turbLevel = BiomeSystem.findParameterLevel(params.turbulence, "turbulence")
-    local turbMatch = false
-    for _, allowedLevel in ipairs(conditions.turbulence) do
-        if turbLevel == allowedLevel then
-            turbMatch = true
-            break
-        end
+    if not checkCondition(params.turbulence, "turbulence", conditions.turbulence) then
+        return false
     end
-    if not turbMatch then return false end
     
-    -- Verificar weirdness
-    local weirdLevel = BiomeSystem.findParameterLevel(params.weirdness, "weirdness")
-    local weirdMatch = false
-    for _, allowedLevel in ipairs(conditions.weirdness) do
-        if weirdLevel == allowedLevel then
-            weirdMatch = true
-            break
-        end
+    if not checkCondition(params.weirdness, "weirdness", conditions.weirdness) then
+        return false
     end
-    if not weirdMatch then return false end
     
     return true
 end
@@ -532,76 +466,96 @@ function BiomeSystem.getBiomeForChunk(chunkX, chunkY)
         return BiomeSystem.biomeCache[key]
     end
     
-    -- Generar parámetros espaciales 3D
+    -- Generar parámetros espaciales
     local params = BiomeSystem.generateSpaceParameters(chunkX, chunkY)
     
-    -- Buscar bioma que coincida con las condiciones
-    local matchingBiomes = {}
+    -- Sistema de puntuación para cada bioma
+    local biomeScores = {}
     
     for biomeType, config in pairs(BiomeSystem.biomeConfigs) do
         if BiomeSystem.matchesBiomeConditions(params, config.conditions) then
-            table.insert(matchingBiomes, {
+            -- Calcular puntuación basada en qué tan bien coincide
+            local score = config.spawnWeight
+            
+            -- Bonus por estar en el centro del rango de continentalidad
+            if config.conditions.continentalness then
+                local contLevel = BiomeSystem.findParameterLevel(params.continentalness, "continentalness")
+                for _, allowedLevel in ipairs(config.conditions.continentalness) do
+                    if contLevel == allowedLevel then
+                        score = score * 1.2
+                        break
+                    end
+                end
+            end
+            
+            -- LA ALTURA AHORA MODIFICA LA PROBABILIDAD, NO BLOQUEA
+            -- Bonus/penalización suave por altura óptima
+            local depthRange = config.conditions.depthRange
+            if depthRange and params.depth then
+                local optimalDepth = (depthRange[1] + depthRange[2]) / 2
+                local depthDistance = math.abs(params.depth - optimalDepth)
+                -- Modificador suave: máximo 1.3x si está en altura perfecta, mínimo 0.7x si está lejos
+                local depthModifier = 1.0 + (0.3 - depthDistance * 0.6)
+                depthModifier = math.max(0.7, math.min(1.3, depthModifier))
+                score = score * depthModifier
+            end
+            
+            table.insert(biomeScores, {
                 type = biomeType,
-                config = config,
-                priority = config.spawnWeight
+                score = score
             })
         end
     end
     
-    -- Si no hay coincidencias exactas, usar Deep Space como fallback
-    if #matchingBiomes == 0 then
+    -- Si no hay coincidencias, usar Deep Space
+    if #biomeScores == 0 then
         BiomeSystem.biomeCache[key] = BiomeSystem.BiomeType.DEEP_SPACE
         return BiomeSystem.BiomeType.DEEP_SPACE
     end
     
-    -- Implementar selección de ruleta ponderada
-    local totalWeight = 0
-    for _, biomeEntry in ipairs(matchingBiomes) do
-        totalWeight = totalWeight + biomeEntry.priority
+    -- Usar hash determinista para selección
+    local chunkHash = BiomeSystem.hashChunk(chunkX, chunkY)
+    local randomValue = (chunkHash % 10000) / 10000.0
+    
+    -- Selección por ruleta ponderada
+    local totalScore = 0
+    for _, entry in ipairs(biomeScores) do
+        totalScore = totalScore + entry.score
     end
-
-    -- La aleatoriedad se maneja globalmente con math.randomseed inicializado una vez.
-
-    local randomPoint = math.random() * totalWeight
-    local selectedBiome = nil
-
-    for _, biomeEntry in ipairs(matchingBiomes) do
-        randomPoint = randomPoint - biomeEntry.priority
-        if randomPoint <= 0 then
-            selectedBiome = biomeEntry.type
-            break
+    
+    local targetValue = randomValue * totalScore
+    local accumulator = 0
+    
+    for _, entry in ipairs(biomeScores) do
+        accumulator = accumulator + entry.score
+        if accumulator >= targetValue then
+            BiomeSystem.biomeCache[key] = entry.type
+            return entry.type
         end
     end
-
-    -- Fallback si por alguna razón no se selecciona un bioma (no debería ocurrir con la lógica de ruleta)
-    if not selectedBiome then
-        selectedBiome = matchingBiomes[1].type -- Seleccionar el primero como fallback
-    end
     
-    -- Aplicar coherencia espacial
-    selectedBiome = BiomeSystem.applyCoherence3D(chunkX, chunkY, selectedBiome, params)
-    
-    if BiomeSystem.debugMode then
-        print(string.format("Chunk (%d, %d) - Biome: %s, Params: E=%.2f, D=%.2f, C=%.2f, T=%.2f, W=%.2f, Depth=%.2f",
-            chunkX, chunkY, selectedBiome,
-            params.energy, params.density, params.continentalness, params.turbulence, params.weirdness, params.depth))
-    end
-
-    BiomeSystem.biomeCache[key] = selectedBiome
-    return selectedBiome
+    -- Fallback
+    BiomeSystem.biomeCache[key] = biomeScores[1].type
+    return biomeScores[1].type
 end
 
--- Sistema de coherencia espacial mejorado para 3D
+-- Sistema de coherencia espacial simplificado
 function BiomeSystem.applyCoherence3D(chunkX, chunkY, proposedBiome, params)
+    -- Reducir agresividad del sistema de coherencia
     local proposedConfig = BiomeSystem.biomeConfigs[proposedBiome]
     local coherenceRadius = proposedConfig.coherenceRadius or 1
     
-    -- Contar biomas vecinos en un radio
+    -- Solo aplicar coherencia para biomas raros
+    if proposedConfig.spawnWeight > 0.1 then
+        return proposedBiome
+    end
+    
+    -- Contar biomas vecinos
     local neighborCounts = {}
     local totalNeighbors = 0
     
-    for dx = -coherenceRadius, coherenceRadius do
-        for dy = -coherenceRadius, coherenceRadius do
+    for dx = -1, 1 do
+        for dy = -1, 1 do
             if dx == 0 and dy == 0 then goto continue end
             
             local neighborKey = (chunkX + dx) .. "," .. (chunkY + dy)
@@ -616,59 +570,23 @@ function BiomeSystem.applyCoherence3D(chunkX, chunkY, proposedBiome, params)
         end
     end
     
-    -- Si no hay suficientes vecinos, usar propuesta original
-    if totalNeighbors < 3 then
+    -- Si no hay suficientes vecinos, mantener propuesta
+    if totalNeighbors < 4 then
         return proposedBiome
     end
     
-    -- Encontrar bioma más común en vecindario
-    local dominantBiome = nil
-    local maxCount = 0
-    
+    -- Solo cambiar si hay un bioma muy dominante alrededor
     for biome, count in pairs(neighborCounts) do
-        if count > maxCount then
-            maxCount = count
-            dominantBiome = biome
-        end
-    end
-    
-    -- Aplicar lógica de coherencia basada en compatibilidad 3D
-    if dominantBiome and maxCount >= totalNeighbors * 0.75 then
-        local dominantConfig = BiomeSystem.biomeConfigs[dominantBiome]
-        
-        -- Verificar si el bioma dominante es compatible con los parámetros actuales
-        if BiomeSystem.matchesBiomeConditions(params, dominantConfig.conditions) then
-            return dominantBiome
-        end
-    end
-    
-    -- Para biomas muy raros, requerir condiciones más precisas
-    if proposedConfig.spawnWeight <= 0.02 then
-        -- Verificar que realmente esté en el centro de la zona apropiada
-        local energyLevel = BiomeSystem.findParameterLevel(params.energy, "energy")
-        local densityLevel = BiomeSystem.findParameterLevel(params.density, "density")
-        
-        -- Si está en el borde de las condiciones, preferir un bioma más común
-        local energyMatch = false
-        local densityMatch = false
-        
-        for _, level in ipairs(proposedConfig.conditions.energy) do
-            if level == energyLevel then energyMatch = true; break end
-        end
-        
-        for _, level in ipairs(proposedConfig.conditions.density) do
-            if level == densityLevel then densityMatch = true; break end
-        end
-        
-        if not energyMatch or not densityMatch then
-            return BiomeSystem.BiomeType.DEEP_SPACE
+        if count >= 6 and biome ~= BiomeSystem.BiomeType.DEEP_SPACE then
+            local dominantConfig = BiomeSystem.biomeConfigs[biome]
+            if BiomeSystem.matchesBiomeConditions(params, dominantConfig.conditions) then
+                return biome
+            end
         end
     end
     
     return proposedBiome
 end
-
--- Resto de funciones mantienen la misma funcionalidad pero adaptadas al nuevo sistema
 
 function BiomeSystem.getBiomeConfig(biomeType)
     return BiomeSystem.biomeConfigs[biomeType] or BiomeSystem.biomeConfigs[BiomeSystem.BiomeType.DEEP_SPACE]
@@ -684,14 +602,7 @@ function BiomeSystem.getBiomeInfo(chunkX, chunkY)
         name = config.name,
         config = config,
         coordinates = {x = chunkX, y = chunkY},
-        parameters = {
-            energy = params.energy,
-            density = params.density,
-            continentalness = params.continentalness,
-            turbulence = params.turbulence,
-            weirdness = params.weirdness,
-            depth = params.depth
-        }
+        parameters = params
     }
 end
 
@@ -699,16 +610,22 @@ function BiomeSystem.modifyDensities(baseDensities, biomeType, chunkX, chunkY)
     local config = BiomeSystem.getBiomeConfig(biomeType)
     local modifiedDensities = {}
     
-    -- Obtener parámetros para ajustes dinámicos
     local params = BiomeSystem.generateSpaceParameters(chunkX, chunkY)
-    local energyMultiplier = 1.0 + params.energy * 0.3  -- Más energía = más objetos activos
-    local densityMultiplier = 1.0 + params.density * 0.5  -- Más densidad = más objetos en general
-    local turbulenceMultiplier = 1.0 + math.abs(params.turbulence) * 0.2  -- Más turbulencia = más variación
+    local energyMultiplier = 1.0 + params.energy * 0.3
+    local densityMultiplier = 1.0 + params.density * 0.5
+    local turbulenceMultiplier = 1.0 + math.abs(params.turbulence) * 0.2
     
-    -- Densidades base mejoradas por bioma
+    -- LA ALTURA AHORA AFECTA LA DENSIDAD DE OBJETOS, NO BLOQUEA BIOMAS
+    local heightMultiplier = 1.0
+    if params.depth < 0.2 then
+        heightMultiplier = 0.8  -- Menos objetos en zonas muy bajas
+    elseif params.depth > 0.8 then
+        heightMultiplier = 1.2  -- Más objetos en zonas altas
+    end
+    
     local biomeDensities = {
         [BiomeSystem.BiomeType.DEEP_SPACE] = {
-            asteroids = 0.01 * densityMultiplier,
+            asteroids = 0.01 * densityMultiplier * heightMultiplier,
             nebulae = 0.001 * energyMultiplier,
             stations = 0.0001,
             wormholes = 0.00005,
@@ -718,7 +635,7 @@ function BiomeSystem.modifyDensities(baseDensities, biomeType, chunkX, chunkY)
         
         [BiomeSystem.BiomeType.NEBULA_FIELD] = {
             asteroids = 0.02 * densityMultiplier,
-            nebulae = 0.20 * energyMultiplier * densityMultiplier,  -- Mucho más en nebulosas
+            nebulae = 0.20 * energyMultiplier * densityMultiplier * heightMultiplier,  -- Altura afecta nebulosas
             stations = 0.0008,
             wormholes = 0.001 * turbulenceMultiplier,
             stars = 0.35 * energyMultiplier,
@@ -726,11 +643,11 @@ function BiomeSystem.modifyDensities(baseDensities, biomeType, chunkX, chunkY)
         },
         
         [BiomeSystem.BiomeType.ASTEROID_BELT] = {
-            asteroids = 0.25 * densityMultiplier * turbulenceMultiplier,  -- Muchos asteroides
+            asteroids = 0.25 * densityMultiplier * turbulenceMultiplier * heightMultiplier,  -- Altura afecta asteroides
             nebulae = 0.001,
-            stations = 0.003,  -- Más estaciones mineras
+            stations = 0.003,
             wormholes = 0.0001,
-            stars = 0.12,  -- Menos estrellas por los asteroides
+            stars = 0.12,
             specialFeatures = 0.025 * turbulenceMultiplier
         },
         
@@ -738,27 +655,27 @@ function BiomeSystem.modifyDensities(baseDensities, biomeType, chunkX, chunkY)
             asteroids = 0.03 * turbulenceMultiplier,
             nebulae = 0.005 * energyMultiplier,
             stations = 0.0002,
-            wormholes = 0.002 * energyMultiplier,  -- Más agujeros de gusano
+            wormholes = 0.002 * energyMultiplier * heightMultiplier,  -- Más wormholes en altura
             stars = 0.18 * energyMultiplier,
-            specialFeatures = 0.08 * energyMultiplier  -- Muchas anomalías
+            specialFeatures = 0.08 * energyMultiplier
         },
         
         [BiomeSystem.BiomeType.RADIOACTIVE_ZONE] = {
-            asteroids = 0.005,  -- Pocos por la radiación
+            asteroids = 0.005,
             nebulae = 0.001,
             stations = 0.0001,
             wormholes = 0.0003,
-            stars = 0.45 * energyMultiplier,  -- Muchas estrellas radioactivas
-            specialFeatures = 0.12 * energyMultiplier  -- Muchas características especiales
+            stars = 0.45 * energyMultiplier * (2.0 - heightMultiplier),  -- Más estrellas en zonas bajas
+            specialFeatures = 0.12 * energyMultiplier
         },
         
         [BiomeSystem.BiomeType.ANCIENT_RUINS] = {
             asteroids = 0.003,
             nebulae = 0.002,
-            stations = 0.008,  -- Muchas estructuras antiguas
-            wormholes = 0.004,  -- Portales antiguos
+            stations = 0.008 * heightMultiplier,  -- Más estructuras en altura
+            wormholes = 0.004,
             stars = 0.15,
-            specialFeatures = 0.15  -- Muchas ruinas
+            specialFeatures = 0.15 * heightMultiplier  -- Más ruinas en altura
         }
     }
     
@@ -787,19 +704,19 @@ function BiomeSystem.updatePlayerBiome(playerX, playerY)
         local params = BiomeSystem.generateSpaceParameters(chunkX, chunkY)
         
         if _G.advancedStats and _G.advancedStats.enabled then
-            print("=== 3D BIOME CHANGE #" .. BiomeSystem.debugInfo.biomeChangeCount .. " ===")
+            print("=== BIOME CHANGE #" .. BiomeSystem.debugInfo.biomeChangeCount .. " ===")
             print("Entered: " .. config.name .. " (" .. config.rarity .. ")")
-            print("3D Parameters:")
-            print("  Energy: " .. string.format("%.3f", params.energy) .. " (" .. BiomeSystem.findParameterLevel(params.energy, "energy") .. ")")
-            print("  Density: " .. string.format("%.3f", params.density) .. " (" .. BiomeSystem.findParameterLevel(params.density, "density") .. ")")
-            print("  Continental: " .. string.format("%.3f", params.continentalness) .. " (" .. BiomeSystem.findParameterLevel(params.continentalness, "continentalness") .. ")")
-            print("  Turbulence: " .. string.format("%.3f", params.turbulence) .. " (" .. BiomeSystem.findParameterLevel(params.turbulence, "turbulence") .. ")")
-            print("  Weirdness: " .. string.format("%.3f", params.weirdness) .. " (" .. BiomeSystem.findParameterLevel(params.weirdness, "weirdness") .. ")")
-            print("  False Height: " .. string.format("%.3f", params.depth))
+            print("Color: R=" .. string.format("%.2f", config.color[1]) .. 
+                  ", G=" .. string.format("%.2f", config.color[2]) ..
+                  ", B=" .. string.format("%.2f", config.color[3]))
+            print("Parameters: E=" .. string.format("%.2f", params.energy) .. 
+                  ", D=" .. string.format("%.2f", params.density) ..
+                  ", C=" .. string.format("%.2f", params.continentalness))
+            print("Height (visual modifier only): " .. string.format("%.2f", params.depth))
             
             -- Notificación especial para biomas raros
-            if config.spawnWeight <= 0.02 then
-                print("*** RARE BIOME DISCOVERY! 3D CONDITIONS ALIGNED! ***")
+            if config.spawnWeight <= 0.05 then
+                print("*** RARE BIOME FOUND! ***")
             end
         end
     end
@@ -825,25 +742,16 @@ function BiomeSystem.getPlayerBiomeInfo(playerX, playerY)
     }
 end
 
--- Función de debug mejorada para verificar distribución 3D
+-- Función de debug para verificar distribución
 function BiomeSystem.debugDistribution(sampleSize)
     sampleSize = sampleSize or 2000
     local counts = {}
-    local parameterStats = {
-        energy = {total = 0, samples = 0},
-        density = {total = 0, samples = 0},
-        continentalness = {total = 0, samples = 0},
-        turbulence = {total = 0, samples = 0},
-        weirdness = {total = 0, samples = 0},
-        depth = {total = 0, samples = 0}
-    }
+    local heightStats = {total = 0, count = 0}
     
-    -- Inicializar contadores
     for biomeType, _ in pairs(BiomeSystem.biomeConfigs) do
         counts[biomeType] = 0
     end
     
-    -- Generar muestra aleatoria dentro de los límites del mundo
     local maxChunk = math.floor(BiomeSystem.WORLD_LIMIT / (48 * 32))
     
     for i = 1, sampleSize do
@@ -853,138 +761,94 @@ function BiomeSystem.debugDistribution(sampleSize)
         local params = BiomeSystem.generateSpaceParameters(x, y)
         
         counts[biome] = counts[biome] + 1
-        
-        -- Acumular estadísticas de parámetros
-        for paramName, value in pairs(params) do
-            if parameterStats[paramName] then
-                parameterStats[paramName].total = parameterStats[paramName].total + value
-                parameterStats[paramName].samples = parameterStats[paramName].samples + 1
-            end
-        end
+        heightStats.total = heightStats.total + params.depth
+        heightStats.count = heightStats.count + 1
     end
     
-    print("=== 3D BIOME DISTRIBUTION TEST (Sample: " .. sampleSize .. ") ===")
-    print("World Limits: ±" .. BiomeSystem.WORLD_LIMIT .. " units")
-    print("Using 6-parameter 3D generation system")
+    print("=== BIOME DISTRIBUTION TEST (Sample: " .. sampleSize .. ") ===")
+    print("NOTE: Height affects object density only, not biome visibility")
     print("")
     
+    local totalPercentage = 0
     for biomeType, count in pairs(counts) do
         local config = BiomeSystem.getBiomeConfig(biomeType)
         local actualPercentage = (count / sampleSize) * 100
         local expectedPercentage = config.spawnWeight * 100
-        local difference = actualPercentage - expectedPercentage
-        local status = ""
+        totalPercentage = totalPercentage + actualPercentage
         
-        if math.abs(difference) <= 2 then
-            status = " ✓ EXCELLENT"
-        elseif math.abs(difference) <= 4 then
-            status = " ~ GOOD"
-        elseif math.abs(difference) <= 8 then
-            status = " ! ACCEPTABLE"
-        else
-            status = " ✗ NEEDS ADJUSTMENT"
-        end
+        local colorStr = string.format("Color(%.1f,%.1f,%.1f)", 
+                                      config.color[1], config.color[2], config.color[3])
         
-        print(string.format("%s: %.1f%% (target: %.1f%%, diff: %+.1f%%)%s", 
-              config.name, actualPercentage, expectedPercentage, difference, status))
+        print(string.format("%s: %.1f%% (target: %.1f%%) - %s", 
+              config.name, actualPercentage, expectedPercentage, colorStr))
     end
     
     print("")
-    print("=== 3D PARAMETER AVERAGES ===")
-    for paramName, stats in pairs(parameterStats) do
-        if stats.samples > 0 then
-            local average = stats.total / stats.samples
-            print(string.format("%s: %.3f (range: -1.0 to 1.0)", paramName, average))
-        end
-    end
+    print("Average height (visual modifier): " .. string.format("%.3f", heightStats.total / heightStats.count))
+    print("Total coverage: " .. string.format("%.1f%%", totalPercentage))
     
-    -- Análisis de calidad específico para el sistema 3D
-    local deepSpacePercentage = (counts[BiomeSystem.BiomeType.DEEP_SPACE] / sampleSize) * 100
-    if deepSpacePercentage >= 55 and deepSpacePercentage <= 65 then
-        print("✓ DEEP SPACE DISTRIBUTION IS OPTIMAL (acts as spatial ocean)")
-    elseif deepSpacePercentage > 65 then
-        print("! Deep Space might be too dominant - adjust 3D parameters")
+    -- Verificar balance
+    local deepSpacePercent = (counts[BiomeSystem.BiomeType.DEEP_SPACE] / sampleSize) * 100
+    if deepSpacePercent >= 35 and deepSpacePercent <= 45 then
+        print("✓ Deep Space acts as proper spatial ocean separator")
     else
-        print("! Deep Space might be too sparse - increase continentalness ocean zones")
+        print("! Deep Space distribution needs adjustment: " .. string.format("%.1f%%", deepSpacePercent))
     end
-    
-    print("✓ 3D Biome system with false height active")
-    print("✓ World boundaries enforced at ±" .. BiomeSystem.WORLD_LIMIT)
 end
 
--- Generar características especiales con parámetros 3D
 function BiomeSystem.generateSpecialFeatures(chunk, chunkX, chunkY, biomeType)
     local config = BiomeSystem.getBiomeConfig(biomeType)
     local specialFeatures = config.specialFeatures or {}
     
     if #specialFeatures == 0 then return end
     
-    -- Obtener parámetros 3D para ajustar la generación
     local params = BiomeSystem.generateSpaceParameters(chunkX, chunkY)
     
-    -- Ajustar probabilidad basada en parámetros 3D
     local energyBonus = params.energy > 0.5 and 1.5 or 1.0
     local weirdnessBonus = math.abs(params.weirdness) > 0.5 and 2.0 or 1.0
     local depthBonus = (params.depth < 0.2 or params.depth > 0.8) and 1.3 or 1.0
     
     local totalBonus = energyBonus * weirdnessBonus * depthBonus
     
-    local featureSeed = ((chunkX * 1000 + chunkY) % 100000) + BiomeSystem.numericSeed
-    math.randomseed(featureSeed)
+    -- Usar hash determinista para features
+    local featureHash = BiomeSystem.hashChunk(chunkX + 1000, chunkY + 1000)
     
-    for _, featureType in ipairs(specialFeatures) do
-        local baseChance = (config.properties and config.properties.specialFeatures) or 0.01
+    for i, featureType in ipairs(specialFeatures) do
+        local featureRand = ((featureHash + i * 12345) % 10000) / 10000.0
+        local baseChance = 0.01
         local adjustedChance = baseChance * totalBonus
         
-        if math.random() < adjustedChance then
+        if featureRand < adjustedChance then
             BiomeSystem.addSpecialFeature(chunk, featureType, chunkX, chunkY, params)
         end
     end
 end
 
 function BiomeSystem.addSpecialFeature(chunk, featureType, chunkX, chunkY, params)
+    local featureHash = BiomeSystem.hashChunk(chunkX + 2000, chunkY + 2000)
+    local randX = (featureHash % 38) + 5
+    local randY = ((featureHash / 38) % 38) + 5
+    
     local feature = {
         type = featureType,
-        x = math.random(5, chunk.size or 43) * 32,
-        y = math.random(5, chunk.size or 43) * 32,
-        size = math.random(20, 60),
+        x = randX * 32,
+        y = randY * 32,
+        size = 20 + (featureHash % 40),
         properties = {},
         active = true,
-        parameters = params  -- Guardar parámetros 3D para efectos
+        parameters = params
     }
     
-    -- Ajustar características según parámetros 3D
-    local energyScale = 1.0 + params.energy * 0.3
-    local weirdnessScale = 1.0 + math.abs(params.weirdness) * 0.5
-    
-    -- Configuración de features específicas mejorada
+    -- Configuración específica por tipo
     if featureType == "dense_nebula" then
         feature.color = {0.8, 0.3, 0.8, 0.6 + params.density * 0.2}
-        feature.size = math.random(80, 150) * (1.0 + params.density * 0.4)
-        feature.properties.visibility_reduction = 0.5 + math.abs(params.density) * 0.3
-        
+        feature.size = 80 + (featureHash % 70)
     elseif featureType == "mega_asteroid" then
-        feature.size = math.random(40, 80) * (1.0 + params.turbulence * 0.3)
+        feature.size = 40 + (featureHash % 40)
         feature.color = {0.5, 0.4, 0.3, 1}
-        feature.properties.mining_yield = 3.0 * energyScale
-        
     elseif featureType == "gravity_well" then
-        feature.color = {0.4, 0.2, 0.8, 0.4 + math.abs(params.weirdness) * 0.3}
-        feature.size = math.random(30, 50) * weirdnessScale
-        feature.properties.gravity_strength = 2.5 * weirdnessScale
-        feature.properties.pull_radius = feature.size * 3
-        
-    elseif featureType == "dead_star" then
-        feature.color = {0.8, 0.6, 0.2, 0.9}
-        feature.size = math.random(15, 25) * energyScale
-        feature.properties.radiation_intensity = 1.5 * energyScale
-        feature.properties.radiation_radius = feature.size * 8
-        
-    elseif featureType == "ancient_station" then
-        feature.color = {0.3, 0.7, 0.5, 0.8}
-        feature.size = math.random(25, 45)
-        feature.properties.tech_level = math.min(5, math.floor(1 + math.abs(params.weirdness) * 5))
-        feature.properties.intact = math.random() > (0.3 - params.depth * 0.2)
+        feature.color = {0.4, 0.2, 0.8, 0.4}
+        feature.size = 30 + (featureHash % 20)
     end
     
     chunk.specialObjects = chunk.specialObjects or {}
@@ -1003,8 +867,9 @@ end
 
 function BiomeSystem.regenerate(newSeed)
     BiomeSystem.init(newSeed)
-    print("3D ENHANCED Biome System regenerated with seed: " .. tostring(newSeed))
-    print("New 3D parameter space generated with false height dimension")
+    print("Biome System regenerated with improved distribution")
+    print("All biomes visible at any height - 2D top-down compatible")
+    print("Height now only affects object density for visual variety")
 end
 
 function BiomeSystem.getAdvancedStats()
@@ -1012,24 +877,16 @@ function BiomeSystem.getAdvancedStats()
         totalChunksGenerated = 0,
         biomeDistribution = {},
         rarityDistribution = {},
-        parameterDistribution = {},
-        playerStats = {
-            currentBiome = BiomeSystem.debugInfo.lastPlayerBiome,
-            biomeChanges = BiomeSystem.debugInfo.biomeChangeCount
-        },
         seed = BiomeSystem.seed,
         numericSeed = BiomeSystem.numericSeed,
-        worldLimits = BiomeSystem.WORLD_LIMIT,
-        system = "3D_6_PARAMETER"
+        worldLimits = BiomeSystem.WORLD_LIMIT
     }
     
-    -- Inicializar contadores
     for biomeType, config in pairs(BiomeSystem.biomeConfigs) do
         stats.biomeDistribution[config.name] = 0
         stats.rarityDistribution[config.rarity] = 0
     end
     
-    -- Contar biomas generados
     for _, biomeType in pairs(BiomeSystem.biomeCache) do
         local config = BiomeSystem.getBiomeConfig(biomeType)
         stats.biomeDistribution[config.name] = stats.biomeDistribution[config.name] + 1
@@ -1040,52 +897,40 @@ function BiomeSystem.getAdvancedStats()
     return stats
 end
 
--- Find all unique biomes within a given radius (MEJORADO PARA 3D)
 function BiomeSystem.findNearbyBiomes(x, y, radius)
     radius = radius or 10000
     local Map = require 'src.maps.map'
     local chunkSize = Map.chunkSize * Map.tileSize
     
-    -- Verificar límites del mundo
     if not BiomeSystem.isWithinWorldLimits(x, y) then
         return {{
             type = BiomeSystem.BiomeType.DEEP_SPACE,
             name = "Deep Space",
             distance = 0,
-            config = BiomeSystem.getBiomeConfig(BiomeSystem.BiomeType.DEEP_SPACE),
-            chunkX = 0,
-            chunkY = 0,
-            note = "Outside world limits"
+            config = BiomeSystem.getBiomeConfig(BiomeSystem.BiomeType.DEEP_SPACE)
         }}
     end
     
-    -- Convertir radio a chunks
     local chunkRadius = math.ceil(radius / chunkSize)
-    
-    -- Obtener chunk del jugador
     local startChunkX, startChunkY = math.floor(x / chunkSize), math.floor(y / chunkSize)
     
     local foundBiomes = {}
     local minDistances = {}
     
-    -- Buscar en área cuadrada alrededor del jugador
     for dx = -chunkRadius, chunkRadius do
         for dy = -chunkRadius, chunkRadius do
             local chunkX = startChunkX + dx
             local chunkY = startChunkY + dy
             
-            -- Calcular distancia en unidades del mundo
             local worldX = (chunkX + 0.5) * chunkSize
             local worldY = (chunkY + 0.5) * chunkSize
             local distance = math.sqrt((worldX - x)^2 + (worldY - y)^2)
             
-            -- Solo procesar si está dentro del radio
             if distance <= radius then
                 local biomeInfo = BiomeSystem.getBiomeInfo(chunkX, chunkY)
                 if biomeInfo and biomeInfo.type then
                     local biomeType = biomeInfo.type
                     
-                    -- Actualizar distancia mínima para este tipo de bioma
                     if not minDistances[biomeType] or distance < minDistances[biomeType] then
                         minDistances[biomeType] = distance
                         foundBiomes[biomeType] = {
@@ -1095,7 +940,7 @@ function BiomeSystem.findNearbyBiomes(x, y, radius)
                             config = biomeInfo.config,
                             chunkX = chunkX,
                             chunkY = chunkY,
-                            parameters = biomeInfo.parameters  -- Incluir parámetros 3D
+                            parameters = biomeInfo.parameters
                         }
                     end
                 end
@@ -1103,7 +948,6 @@ function BiomeSystem.findNearbyBiomes(x, y, radius)
         end
     end
     
-    -- Convertir a array y ordenar por distancia
     local result = {}
     for _, biome in pairs(foundBiomes) do
         table.insert(result, biome)

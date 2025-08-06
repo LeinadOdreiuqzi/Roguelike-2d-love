@@ -15,14 +15,14 @@ ChunkManager.config = {
     tileSize = 32,
     
     -- Gestión de memoria
-    maxActiveChunks = 60,      -- Further reduced for memory optimization
-    maxCachedChunks = 120,      -- Further reduced for memory optimization
-    poolSize = 30,              -- Further reduced for pooling optimization
+    maxActiveChunks = 60,      
+    maxCachedChunks = 120,      
+    poolSize = 30,              
     
     -- Distancias de carga/descarga
-    loadDistance = 2,           -- Adjusted for even closer loading
-    unloadDistance = 4,         -- Adjusted for earlier unloading
-    preloadDistance = 1,         -- More conservative preloading
+    loadDistance = 2,           
+    unloadDistance = 4,         
+    preloadDistance = 1,         
     
     -- Prioridades de carga
     priority = {
@@ -679,7 +679,7 @@ function ChunkManager.cleanupCache()
     end
 end
 
--- Obtener chunks visibles para renderizado (mejorado con límites)
+-- Obtener chunks visibles para renderizado 
 function ChunkManager.getVisibleChunks(camera)
     local visibleChunks = {}
     
@@ -748,7 +748,7 @@ function ChunkManager.getCachedChunkCount()
     return count
 end
 
--- Obtener estadísticas del gestor (mejorado con información de límites)
+-- Obtener estadísticas del gestor
 function ChunkManager.getStats()
     -- Actualizar contadores actuales
     ChunkManager.state.stats.activeCount = ChunkManager.getActiveChunkCount()
@@ -796,7 +796,7 @@ function ChunkManager.resetStats()
     }
 end
 
--- Función de limpieza completa mejorada
+-- Función de limpieza completa 
 function ChunkManager.cleanup()
     -- Devolver todos los chunks al pool
     for chunkId, chunk in pairs(ChunkManager.state.activeChunks) do

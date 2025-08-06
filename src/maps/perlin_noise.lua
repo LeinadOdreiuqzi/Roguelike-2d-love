@@ -1,8 +1,8 @@
--- src/maps/perlin_noise.lua (MEJORADO CON SOPORTE 3D COMPLETO)
+-- src/maps/perlin_noise.lua
 
 local PerlinNoise = {}
 
--- Tabla de permutación para el ruido de Perlin (expandida para mejor calidad)
+-- Tabla de permutación para el ruido de Perlin 
 local p = {}
 local permutation = {
     151, 160, 137, 91, 90, 15, 131, 13, 201, 95, 96, 53, 194, 233, 7, 225,
@@ -89,7 +89,7 @@ local function grad2D(hash, x, y)
     return (h % 2 == 0 and u or -u) + (h < 2 and v or -v)
 end
 
--- Función principal de ruido de Perlin 3D MEJORADA
+-- Función principal de ruido de Perlin 3D 
 function PerlinNoise.noise(x, y, z)
     z = z or 0
     

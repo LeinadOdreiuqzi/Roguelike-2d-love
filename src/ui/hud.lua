@@ -1,4 +1,4 @@
--- src/ui/hud.lua (MEJORADO CON SOPORTE 3D Y LÍMITES DEL MUNDO)
+-- src/ui/hud.lua (SOPORTE 3D Y LÍMITES DEL MUNDO)
 
 local HUD = {}
 
@@ -10,8 +10,8 @@ local hudState = {
     showInfo = true,
     showSeedInput = false,
     showBiomeInfo = true,
-    show3DDebug = false,  -- NUEVO: Debug 3D
-    showWorldLimits = false,  -- NUEVO: Información de límites
+    show3DDebug = false,    
+    showWorldLimits = false, 
     seedInputText = "",
     font = nil,
     smallFont = nil,
@@ -38,7 +38,7 @@ local gameState = nil
 local player = nil
 local Map = nil
 local BiomeSystem = nil
-local CoordinateSystem = nil  -- NUEVO: Referencia al sistema de coordenadas
+local CoordinateSystem = nil  --Referencia al sistema de coordenadas
 
 -- Cache de información de bioma del jugador (mejorado)
 local biomeCache = {
@@ -47,14 +47,14 @@ local biomeCache = {
     currentBiome = nil,
     biomeHistory = {},
     maxHistory = 10,
-    current3DParams = nil,  -- NUEVO: Parámetros 3D actuales
-    worldLimitInfo = nil    -- NUEVO: Info de límites del mundo
+    current3DParams = nil,  -- Parámetros 3D actuales
+    worldLimitInfo = nil    -- Info de límites del mundo
 }
 
 -- LÍMITES DEL MUNDO
 local WORLD_LIMIT = 200000
 
--- Inicialización del HUD (mejorada)
+-- Inicialización del HUD
 function HUD.init(gameStateRef, playerRef, mapRef)
     hudState.font = love.graphics.newFont(13)
     hudState.smallFont = love.graphics.newFont(11)
@@ -76,7 +76,7 @@ function HUD.init(gameStateRef, playerRef, mapRef)
         print("HUD: BiomeSystem not available")
     end
     
-    -- NUEVO: Obtener referencia al sistema de coordenadas
+    -- Obtener referencia al sistema de coordenadas
     local coordSuccess, coordSystemModule = pcall(function()
         return require 'src.maps.coordinate_system'
     end)
@@ -98,13 +98,13 @@ function HUD.init(gameStateRef, playerRef, mapRef)
     print("Enhanced HUD system initialized with 3D biome support and world limits")
 end
 
--- Función de actualización principal del HUD (mejorada)
+-- Función de actualización principal del HUD
 function HUD.update(dt)
     HUD.updateBiomeInfo(dt)
-    HUD.updateWorldLimitInfo(dt)  -- NUEVO
+    HUD.updateWorldLimitInfo(dt) 
 end
 
--- NUEVO: Actualizar información de límites del mundo
+-- Actualizar información de límites del mundo
 function HUD.updateWorldLimitInfo(dt)
     if not player or not CoordinateSystem then return end
     
@@ -133,7 +133,7 @@ function HUD.updateWorldLimitInfo(dt)
     end
 end
 
--- Actualizar información de bioma del jugador (MEJORADA CON 3D)
+-- Actualizar información de bioma del jugador
 function HUD.updateBiomeInfo(dt)
     local currentTime = love.timer.getTime()
     
@@ -146,7 +146,7 @@ function HUD.updateBiomeInfo(dt)
                 return nil
             end)
             
-            -- NUEVO: Obtener parámetros 3D actuales
+            --Obtener parámetros 3D actuales
             local params3DSuccess, current3DParams = pcall(function()
                 if BiomeSystem.getPlayerBiomeInfo then
                     local biomeInfo = BiomeSystem.getPlayerBiomeInfo(player.x, player.y)
@@ -180,7 +180,7 @@ function HUD.updateBiomeInfo(dt)
                     end
                 end
                 
-                -- NUEVO: Actualizar parámetros 3D actuales
+                -- Actualizar parámetros 3D actuales
                 if params3DSuccess and current3DParams then
                     biomeCache.current3DParams = current3DParams
                 end
@@ -191,7 +191,7 @@ function HUD.updateBiomeInfo(dt)
     end
 end
 
--- Función de compatibilidad para estadísticas (MEJORADA)
+-- Función de compatibilidad para estadísticas
 function HUD.getSafeStats()
     local stats = {
         loadedChunks = 0,
@@ -206,7 +206,7 @@ function HUD.getSafeStats()
             renderedObjects = 0,
             culledObjects = 0
         },
-        -- NUEVO: Estadísticas de límites del mundo
+        -- Estadísticas de límites del mundo
         worldLimits = {
             enabled = true,
             maxSize = WORLD_LIMIT,
@@ -215,7 +215,7 @@ function HUD.getSafeStats()
             nearLimit = false,
             withinLimits = true
         },
-        -- NUEVO: Estadísticas 3D
+        -- Estadísticas 3D
         biome3D = {
             hasParameters = false,
             parameters = nil
@@ -227,7 +227,7 @@ function HUD.getSafeStats()
         stats.seed = gameState.currentSeed
     end
     
-    -- NUEVO: Información de límites del mundo
+    -- Información de límites del mundo
     if player and CoordinateSystem then
         local limitSuccess, limitData = pcall(function()
             return {
@@ -244,7 +244,7 @@ function HUD.getSafeStats()
         end
     end
     
-    -- NUEVO: Información de parámetros 3D
+    -- Información de parámetros 3D
     if biomeCache.current3DParams then
         stats.biome3D.hasParameters = true
         stats.biome3D.parameters = biomeCache.current3DParams
@@ -302,7 +302,7 @@ function HUD.getSafeStats()
     return stats
 end
 
--- Calcular coordenadas de chunk de forma segura (sin cambios)
+-- Calcular coordenadas de chunk de forma segura
 function HUD.getSafeChunkCoords(worldX, worldY)
     local chunkX, chunkY = 0, 0
     
@@ -328,7 +328,7 @@ function HUD.getSafeChunkCoords(worldX, worldY)
     return chunkX, chunkY
 end
 
--- Dibujar todo el HUD (mejorado)
+-- Dibujar todo el HUD
 function HUD.draw()
     local r, g, b, a = love.graphics.getColor()
     
@@ -337,30 +337,30 @@ function HUD.draw()
         HUD.drawUnifiedInfoPanel()
     end
     
-    -- Panel de información de biomas (mejorado con 3D)
+    -- Panel de información de biomas
     if hudState.showBiomeInfo then
         HUD.drawBiomeInfoPanel()
     end
     
-    -- NUEVO: Panel de debug 3D
+    -- Panel de debug 3D
     if hudState.show3DDebug then
         HUD.draw3DDebugPanel()
     end
     
-    -- NUEVO: Panel de límites del mundo
+    -- Panel de límites del mundo
     if hudState.showWorldLimits then
         HUD.drawWorldLimitsPanel()
     end
     
-    -- Input de semilla alfanumérica (sin cambios)
+    -- Input de semilla alfanumérica
     if hudState.showSeedInput then
         HUD.drawSeedInput()
     end
     
-    -- Información de la semilla actual (sin cambios)
+    -- Información de la semilla actual 
     HUD.drawCurrentSeedInfo()
     
-    -- HUD del jugador (barras de vida, escudo, combustible) (sin cambios)
+    -- HUD del jugador (barras de vida, escudo, combustible)
     if player and player.stats then
         HUD.drawPlayerHUD()
     end
@@ -368,7 +368,7 @@ function HUD.draw()
     love.graphics.setColor(r, g, b, a)
 end
 
--- NUEVO: Panel de debug 3D
+-- Panel de debug 3D
 function HUD.draw3DDebugPanel()
     if not player or not BiomeSystem then return end
     
@@ -502,7 +502,7 @@ function HUD.draw3DDebugPanel()
     end
 end
 
--- NUEVO: Panel de límites del mundo
+-- Panel de límites del mundo
 function HUD.drawWorldLimitsPanel()
     if not player then return end
     
@@ -626,7 +626,7 @@ function HUD.drawWorldLimitsPanel()
     end
 end
 
--- Panel de información de biomas en tiempo real (MEJORADO)
+-- Panel de información de biomas en tiempo real
 function HUD.drawBiomeInfoPanel()
     if not player or not BiomeSystem then return end
     
@@ -698,7 +698,7 @@ function HUD.drawBiomeInfoPanel()
         love.graphics.print("Rarity: " .. (biomeInfo.rarity or "Unknown"), x + 15, infoY)
         infoY = infoY + lineHeight + 3
         
-        -- NUEVO: Parámetros 3D resumidos
+        -- Parámetros 3D resumidos
         if biomeInfo.parameters then
             love.graphics.setColor(0.8, 1, 1, 1)
             love.graphics.setFont(hudState.smallFont)
@@ -778,7 +778,7 @@ function HUD.drawBiomeInfoPanel()
     end
 end
 
--- Panel de información principal (MEJORADO PARA 3D Y LÍMITES)
+-- Panel de información principal   
 function HUD.drawUnifiedInfoPanel()
     local panelWidth = 380  -- Aumentado para nueva información
     local panelHeight = 580  -- Aumentado para más contenido
@@ -816,7 +816,7 @@ function HUD.drawUnifiedInfoPanel()
     local infoY = y + 35
     local lineHeight = 12
     
-    -- Información de semilla alfanumérica (sin cambios significativos)
+    -- Información de semilla alfanumérica
     love.graphics.setColor(1, 1, 0.6, 1)
     love.graphics.print("GALAXY SEED", x + 10, infoY)
     infoY = infoY + lineHeight + 3
@@ -831,7 +831,7 @@ function HUD.drawUnifiedInfoPanel()
     love.graphics.print("Status: " .. seedStatus, x + 15, infoY)
     infoY = infoY + lineHeight + 5
     
-    -- NUEVO: Información de límites del mundo
+    -- Información de límites del mundo
     love.graphics.setColor(1, 0.8, 0.8, 1)
     love.graphics.print("WORLD BOUNDARIES", x + 10, infoY)
     infoY = infoY + lineHeight + 3
@@ -867,7 +867,7 @@ function HUD.drawUnifiedInfoPanel()
     love.graphics.print("Chunk: (" .. chunkX .. ", " .. chunkY .. ")", x + 15, infoY)
     infoY = infoY + lineHeight + 5
     
-    -- NUEVO: Información de parámetros 3D actuales
+    -- Información de parámetros 3D actuales
     if stats.biome3D.hasParameters and stats.biome3D.parameters then
         love.graphics.setColor(0.8, 1, 1, 1)
         love.graphics.print("3D BIOME PARAMETERS", x + 10, infoY)
@@ -925,7 +925,7 @@ function HUD.drawUnifiedInfoPanel()
         end
     end
     
-    -- Información del sistema (resto sin cambios significativos)
+    -- Información del sistema
     love.graphics.setColor(0.9, 1, 0.9, 1)
     love.graphics.print("SYSTEM INFO", x + 10, infoY)
     infoY = infoY + lineHeight + 3
@@ -992,7 +992,7 @@ function HUD.drawUnifiedInfoPanel()
         infoY = infoY + 5
     end
     
-    -- DEBUG MODE (resto sin cambios)
+    -- DEBUG MODE 
     if player and player.stats and player.stats.debug and player.stats.debug.enabled then
         infoY = infoY + 5
         love.graphics.setColor(1, 1, 0.4, 1)
@@ -1028,7 +1028,7 @@ function HUD.drawUnifiedInfoPanel()
     love.graphics.print("F16: 3D Debug | F17: World Limits", x + 15, infoY)  -- NUEVO
 end
 
--- Input de semilla alfanumérica (sin cambios)
+-- Input de semilla alfanumérica
 function HUD.drawSeedInput()
     local panelWidth = 500
     local panelHeight = 400
@@ -1095,7 +1095,7 @@ function HUD.drawSeedInput()
     love.graphics.print("Examples: A5B2C9D1E7, X3Y8Z2K6M4, F9R1T5G3H8", x + 20, y + 375)
 end
 
--- Información de la semilla actual (sin cambios)
+-- Información de la semilla actual
 function HUD.drawCurrentSeedInfo()
     if not gameState then return end
     
@@ -1122,13 +1122,13 @@ function HUD.drawCurrentSeedInfo()
     love.graphics.setFont(hudState.tinyFont)
     love.graphics.print("Type: " .. validText, x, y + 15)
     
-    -- NUEVO: Información adicional sobre el sistema 3D
+    -- Información adicional sobre el sistema 3D
     love.graphics.setColor(0.8, 0.9, 1, 1)
     love.graphics.print("6-Param 3D System", x, y + 27)
     love.graphics.print("World: ±" .. WORLD_LIMIT, x, y + 39)
 end
 
--- HUD del jugador (sin cambios)
+-- HUD del jugador
 function HUD.drawPlayerHUD()
     local screenWidth = love.graphics.getWidth()
     local screenHeight = love.graphics.getHeight()
@@ -1155,8 +1155,7 @@ function HUD.drawPlayerHUD()
     
     love.graphics.setColor(r, g, b, a)
 end
-
--- Resto de funciones sin cambios significativos (drawHearts, drawHeart, drawHeartOutline, drawBar)
+ -- HUD de las stats del jugdaor
 function HUD.drawHearts(x, y)
     local heartSize = 16
     local heartSpacing = 20
@@ -1238,7 +1237,7 @@ function HUD.drawBar(x, y, width, height, percentage, color, backgroundColor)
     love.graphics.print(text, x + width/2 - textWidth/2, y - 1)
 end
 
--- Manejo de entrada para el HUD (sin cambios)
+-- Manejo de entrada para el HUD 
 function HUD.handleSeedInput(key)
     if key == "escape" then
         hudState.showSeedInput = false
@@ -1283,7 +1282,7 @@ function HUD.textinput(text)
     end
 end
 
--- Funciones de control del HUD (MEJORADAS)
+-- Funciones de control del HUD 
 function HUD.toggleInfo()
     hudState.showInfo = not hudState.showInfo
 end
@@ -1294,14 +1293,14 @@ function HUD.toggleBiomeInfo()
     print("3D Biome info panel: " .. status)
 end
 
--- NUEVO: Toggle para debug 3D
+-- Toggle para debug 3D
 function HUD.toggle3DDebug()
     hudState.show3DDebug = not hudState.show3DDebug
     local status = hudState.show3DDebug and "ON" or "OFF"
     print("3D Debug panel: " .. status)
 end
 
--- NUEVO: Toggle para límites del mundo
+-- Toggle para límites del mundo
 function HUD.toggleWorldLimits()
     hudState.showWorldLimits = not hudState.showWorldLimits
     local status = hudState.showWorldLimits and "ON" or "OFF"
@@ -1331,7 +1330,7 @@ function HUD.isBiomeInfoVisible()
     return hudState.showBiomeInfo
 end
 
--- NUEVO: Getters para nuevos paneles
+-- Getters para nuevos paneles
 function HUD.is3DDebugVisible()
     return hudState.show3DDebug
 end
@@ -1353,7 +1352,7 @@ function HUD.updateReferences(gameStateRef, playerRef, mapRef)
         BiomeSystem = biomeSystemModule
     end
     
-    -- NUEVO: Recargar sistema de coordenadas
+    -- Recargar sistema de coordenadas
     local coordSuccess, coordSystemModule = pcall(function()
         return require 'src.maps.coordinate_system'
     end)

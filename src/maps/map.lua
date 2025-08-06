@@ -1,4 +1,4 @@
--- src/maps/map.lua (SIMPLIFICADO - COORDINADOR PRINCIPAL)
+-- src/maps/map.lua (COORDINADOR PRINCIPAL)
 
 local Map = {}
 
@@ -8,8 +8,6 @@ local BiomeSystem = require 'src.maps.biome_system'
 local CoordinateSystem = require 'src.maps.coordinate_system'
 local ChunkManager = require 'src.maps.chunk_manager'
 local OptimizedRenderer = require 'src.maps.optimized_renderer'
-
--- Importar módulos nuevos
 local SeedConverter = require 'src.maps.systems.seed_converter'
 local MapGenerator = require 'src.maps.systems.map_generator'
 local MapRenderer = require 'src.maps.systems.map_renderer'

@@ -1,4 +1,4 @@
--- main.lua (SISTEMA 3D COMPLETO CON FALSA ALTURA Y LÍMITES DEL MUNDO)
+-- main.lua (SISTEMA CON FALSA ALTURA Y LÍMITES DEL MUNDO)
 
 local Camera = require 'src.utils.camera'
 local Map = require 'src.maps.map'
@@ -25,7 +25,7 @@ local gameState = {
     }
 }
 
--- Sistema de iluminación mejorado
+-- Sistema de iluminación
 local lighting = {
     playerLight = {
         x = 0,
@@ -47,16 +47,16 @@ local biomeDebug = {
     enabled = false,
     showRegions = false,
     showInfluences = false,
-    show3DParameters = false,  -- NUEVO: Debug parámetros 3D
-    showWorldLimits = false,   -- NUEVO: Debug límites del mundo
-    showFalseHeight = false,   -- NUEVO: Visualización altura falsa
+    show3DParameters = false,  -- Debug parámetros 3D
+    showWorldLimits = false,   -- Debug límites del mundo
+    showFalseHeight = false,   -- Visualización altura falsa
     lastDebugUpdate = 0,
     testDistribution = false,
     showSystemStats = false,
     showPerformanceOverlay = false
 }
 
--- Sistema de estadísticas avanzadas mejorado
+-- Sistema de estadísticas
 local advancedStats = {
     enabled = false,
     updateInterval = 1.0,
@@ -80,7 +80,7 @@ local worldLimitAlerts = {
 }
 
 function love.load()
-    -- Configuración inicial mejorada
+    -- Configuración inicial
     love.window.setTitle("Space Roguelike - 3D Enhanced Systems - Seed: " .. gameState.currentSeed)
     love.window.setMode(1200, 800, {resizable = true})
     
@@ -96,7 +96,7 @@ function love.load()
     _G.camera = cam
     _G.camera:updateScreenDimensions()
     
-    -- NUEVO: Crear jugador en el centro con verificación de límites
+    -- Crear jugador en el centro con verificación de límites
     local playerX, playerY = 0, 0
     
     -- Verificar que la posición inicial está dentro de los límites
@@ -117,7 +117,7 @@ function love.load()
         print("✓ CoordinateSystem initialized with world limits")
     end
     
-    -- Inicializar sistema de mapas 3D mejorado con semilla alfanumérica
+    -- Inicializar sistema de mapas 3D con semilla alfanumérica
     local mapSuccess = pcall(function() 
         Map.init(gameState.currentSeed) 
     end)
@@ -183,7 +183,7 @@ function love.load()
     print("• Enhanced spatial coherence mimics Minecraft's natural feel")
     print("• World boundaries prevent infinite expansion beyond " .. WORLD_LIMIT .. " units")
     
-    -- Información sobre estrellas mejoradas
+    -- Información sobre estrellas
     if Map.starConfig then
         print("")
         print("=== ENHANCED STARS SYSTEM ===")
@@ -269,7 +269,7 @@ function love.update(dt)
         end
     end
     
-    -- MEJORADO: Actualizar sistema de coordenadas con límites del mundo
+    -- Actualizar sistema de coordenadas con límites del mundo
     if player and player.x and player.y then
         local success, relocated, limitedX, limitedY = pcall(function()
             return CoordinateSystem.update(dt, player.x, player.y)
@@ -305,17 +305,7 @@ function love.update(dt)
             print("Error updating camera:", err)
         end
     end
-    
-    -- Actualizar posición de la luz del jugador
-    if lighting and lighting.playerLight and player then
-        lighting.playerLight.x = player.x or 0
-        lighting.playerLight.y = player.y or 0
-        -- Ajustar radio de luz basado en velocidad
-        local speed = math.sqrt((player.dx or 0)^2 + (player.dy or 0)^2)
-        lighting.playerLight.radius = (35 + speed * 0.1) * Map.worldScale
-    end
-    
-    -- MEJORADO: Actualizar debug de biomas 3D y sistemas
+    -- Actualizar debug de biomas 3D y sistemas
     if biomeDebug.enabled and player then
         local currentTime = love.timer.getTime()
         if currentTime - biomeDebug.lastDebugUpdate >= 1.0 then  -- Cada segundo
@@ -357,7 +347,7 @@ function love.update(dt)
                     print("Current Sector: (" .. coordStats.currentSector.x .. ", " .. coordStats.currentSector.y .. ")")
                     print("Relocations: " .. coordStats.relocations)
                     
-                    -- NUEVO: Información de límites del mundo
+                    -- Información de límites del mundo
                     if coordStats.worldLimits then
                         print("World Limits Active: " .. (coordStats.worldLimits.active and "YES" or "NO"))
                         print("Distance to Limit: " .. math.floor(coordStats.worldLimits.distanceToLimit))
@@ -372,7 +362,7 @@ function love.update(dt)
                     print("=== CHUNK MANAGER ===")
                     print("Chunks - Active: " .. chunkStats.active .. ", Cached: " .. chunkStats.cached .. ", Pool: " .. chunkStats.pooled)
                     
-                    -- NUEVO: Información de límites en chunks
+                    -- Información de límites en chunks
                     if chunkStats.worldLimits then
                         print("Chunks Outside Limits: " .. chunkStats.worldLimits.chunksOutsideLimits)
                         print("Limit Enforced Chunks: " .. chunkStats.worldLimits.limitEnforcedChunks)
@@ -418,7 +408,7 @@ function love.update(dt)
     end
 end
 
--- NUEVO: Aplicar límites del mundo al jugador
+-- Aplicar límites del mundo al jugador
 function enforcePlayerWorldLimits(x, y)
     local originalX, originalY = x, y
     
@@ -430,7 +420,7 @@ function enforcePlayerWorldLimits(x, y)
     return x, y
 end
 
--- NUEVO: Verificar proximidad a límites del mundo
+-- Verificar proximidad a límites del mundo
 function checkWorldLimitProximity(x, y)
     if not worldLimitAlerts.enabled then return end
     
@@ -456,7 +446,7 @@ function checkWorldLimitProximity(x, y)
     end
 end
 
--- NUEVO: Mostrar alertas de límites del mundo
+-- Mostrar alertas de límites del mundo
 function showWorldLimitAlert(alertType, distance)
     if alertType == "BOUNDARY_REACHED" then
         print("⚠️  WORLD BOUNDARY REACHED - Position clamped to world limits")
@@ -481,12 +471,12 @@ function love.draw()
         drawBiomeRegionDebug()
     end
     
-    -- NUEVO: Dibujar debug de límites del mundo
+    -- Dibujar debug de límites del mundo
     if biomeDebug.enabled and biomeDebug.showWorldLimits then
         drawWorldLimitsDebug()
     end
     
-    -- NUEVO: Dibujar visualización de altura falsa
+    -- Dibujar visualización de altura falsa
     if biomeDebug.enabled and biomeDebug.show3DParameters then
         draw3DParametersDebug()
     end
@@ -520,7 +510,7 @@ function love.draw()
     end
 end
 
--- NUEVO: Dibujar debug de límites del mundo
+-- Dibujar debug de límites del mundo
 function drawWorldLimitsDebug()
     if not _G.camera or not player then return end
     
@@ -591,7 +581,7 @@ function drawWorldLimitsDebug()
     love.graphics.setColor(r, g, b, a)
 end
 
--- NUEVO: Dibujar debug de parámetros 3D
+-- Dibujar debug de parámetros 3D
 function draw3DParametersDebug()
     if not _G.camera or not player or not BiomeSystem then return end
     
@@ -714,7 +704,7 @@ function updateAdvancedStats(dt)
     end
 end
 
--- Dibujar overlay de performance (MEJORADO)
+-- Dibujar overlay de performance
 function drawPerformanceOverlay()
     local r, g, b, a = love.graphics.getColor()
     
@@ -757,7 +747,7 @@ function drawPerformanceOverlay()
     love.graphics.print("FPS: " .. currentFPS, x + 10, infoY)
     infoY = infoY + 12
     
-    -- NUEVO: Información de límites del mundo
+    -- Información de límites del mundo
     if player and CoordinateSystem then
         local limitSuccess, distanceToLimit = pcall(function()
             return CoordinateSystem.getDistanceToLimit and CoordinateSystem.getDistanceToLimit(player.x, player.y) or 0
@@ -796,7 +786,7 @@ function drawPerformanceOverlay()
         infoY = infoY + 12
     end
     
-    -- NUEVO: Estadísticas 3D
+    -- Estadísticas 3D
     if biomeCache and biomeCache.current3DParams then
         love.graphics.setColor(0.8, 1, 1, 1)
         love.graphics.print("False Height: " .. string.format("%.3f", biomeCache.current3DParams.depth), x + 10, infoY)
@@ -812,7 +802,7 @@ function drawPerformanceOverlay()
     love.graphics.setColor(r, g, b, a)
 end
 
--- Dibujar overlay de debug de biomas (MEJORADO PARA 3D)
+-- Dibujar overlay de debug de biomas
 function drawBiomeDebugOverlay()
     if not player then return end
     
@@ -852,7 +842,7 @@ function drawBiomeDebugOverlay()
     love.graphics.print("System: 6-Parameter 3D Generation", x + 10, infoY)
     infoY = infoY + 15
     
-    -- NUEVO: Información de límites del mundo
+    -- Información de límites del mundo
     love.graphics.setColor(1, 0.8, 0.8, 1)
     love.graphics.print("WORLD BOUNDARIES", x + 10, infoY)
     infoY = infoY + 12
@@ -897,7 +887,7 @@ function drawBiomeDebugOverlay()
         love.graphics.print("Chunk: (" .. biomeInfo.coordinates.chunk.x .. ", " .. biomeInfo.coordinates.chunk.y .. ")", x + 10, infoY)
         infoY = infoY + 15
         
-        -- NUEVO: Parámetros 3D detallados
+        -- Parámetros 3D detallados
         if biomeInfo.parameters then
             love.graphics.setColor(0.8, 1, 1, 1)
             love.graphics.print("3D PARAMETERS", x + 10, infoY)
@@ -964,7 +954,7 @@ function drawBiomeDebugOverlay()
     love.graphics.setColor(r, g, b, a)
 end
 
--- Resto de funciones de dibujo sin cambios significativos...
+-- Resto de funciones de dibujo
 function drawBiomeRegionDebug()
     if not _G.camera or not player then return end
     
@@ -998,7 +988,7 @@ function drawBiomeRegionDebug()
                 love.graphics.setColor(1, 1, 1, 0.8)
                 love.graphics.printf(config.name:sub(1, 8), screenX + 5, screenY + 5, screenSize - 10, "center")
                 
-                -- NUEVO: Mostrar altura falsa si está disponible
+                -- Mostrar altura falsa si está disponible
                 if chunk.biomeParameters and chunk.biomeParameters.depth then
                     love.graphics.setColor(1, 1, 0.5, 0.8)
                     love.graphics.printf("H:" .. string.format("%.2f", chunk.biomeParameters.depth), 
@@ -1304,7 +1294,7 @@ function changeSeed(newSeed)
 end
 
 function regenerateMap(seed)
-    -- Regenerar mapa con nueva semilla usando el sistema 3D mejorado
+    -- Regenerar mapa con nueva semilla usando el sistema 3D
     Map.regenerate(seed)
     
     -- Reposicionar jugador al centro (dentro de límites del mundo)
