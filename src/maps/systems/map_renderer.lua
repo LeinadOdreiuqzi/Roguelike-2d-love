@@ -505,7 +505,7 @@ function MapRenderer.drawBiomeFeature(feature, worldX, worldY, camera)
         
         local pulse = 0.8 + 0.2 * MapRenderer.sinTable[timeIndex2]
         love.graphics.setColor(feature.color[1], feature.color[2], feature.color[3], 
-                              feature.color[4] * 0.3 * pulse)
+                              (feature.color[4] or 0) * 0.3 * pulse)
         love.graphics.circle("fill", screenX, screenY, renderSize * 1.3, 16)
         
     elseif feature.type == "mega_asteroid" then

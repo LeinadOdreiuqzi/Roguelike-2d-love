@@ -198,6 +198,9 @@ function love.load()
     print("=== ENHANCED CONTROLS ===")
     print("F1: System Info / Performance & Memory Stats | F2: Seed Input (Alphanumeric) | F3: Debug Mode")
         print("F4: Enhanced Grid | F5: Lighting | F6: Test Damage")
+
+    -- Asegurarse de que el canvas principal esté activo al finalizar la carga
+    love.graphics.setCanvas()
         print("F7: Star Effects | F8: Star Quality | F9: Invulnerability")
         print("F10: Infinite Fuel | F11: Fast Regen | F12: Biome Scanner / 3D Debug Panels")
     print("` (Grave): Advanced Debug | T: Test 3D Distribution")

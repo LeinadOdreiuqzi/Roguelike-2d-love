@@ -15,14 +15,14 @@ ChunkManager.config = {
     tileSize = 32,
     
     -- Gestión de memoria
-    maxActiveChunks = 60,      
-    maxCachedChunks = 120,      
+    maxActiveChunks = 90,      
+    maxCachedChunks = 180,      
     poolSize = 30,              
     
     -- Distancias de carga/descarga
-    loadDistance = 2,           
-    unloadDistance = 4,         
-    preloadDistance = 1,         
+    loadDistance = 3,           
+    unloadDistance = 6,         
+    preloadDistance = 2,         
     
     -- Prioridades de carga
     priority = {
@@ -35,8 +35,8 @@ ChunkManager.config = {
     },
     
     -- Configuración de generación
-    maxGenerationTime = 0.003,  -- Tiempo máximo por frame para generación (3ms)
-    maxObjectsPerFrame = 150,   -- Objetos máximos a generar por frame
+    maxGenerationTime = 0.008,  -- Tiempo máximo por frame para generación (8ms)
+    maxObjectsPerFrame = 300,   -- Objetos máximos a generar por frame
     objectGenerationDistance = 5, -- Reduced distance for detailed object generation
     
     -- Límites del mundo
@@ -121,6 +121,7 @@ local ChunkStructure = {
     bounds = {},
     visible = false,
     lodLevel = 0,
+    objectCount = 0, -- Nuevo campo para el conteo de objetos
     
     -- Metadatos
     seed = 0,
@@ -395,10 +396,17 @@ function ChunkManager.processLoadQueue(dt, maxTime)
     while #ChunkManager.state.loadQueue > 0 and (love.timer.getTime() - startTime) < maxTime do
         local request = table.remove(ChunkManager.state.loadQueue, 1)
         
-        -- Verificar si el chunk aún es relevante y está dentro de límites
+        -- Verificar si el chunk aún es relevante y está dentro de límites justo antes de generar
         if request.withinLimits and ChunkManager.isChunkRelevant(request.chunkX, request.chunkY) then
-            ChunkManager.generateChunk(request.chunkX, request.chunkY)
-            processedCount = processedCount + 1
+            -- Verificar si el chunk ya está activo o en caché (podría haber sido cargado por otra solicitud)
+            local chunkId = ChunkManager.generateChunkId(request.chunkX, request.chunkY)
+            if not ChunkManager.state.activeChunks[chunkId] and not ChunkManager.state.cachedChunks[chunkId] then
+                ChunkManager.generateChunk(request.chunkX, request.chunkY)
+                processedCount = processedCount + 1
+            else
+                -- Chunk ya existe, no es necesario generarlo de nuevo
+                ChunkManager.state.stats.cacheHits = ChunkManager.state.stats.cacheHits + 1
+            end
         else
             -- Chunk fuera de límites o ya no relevante
             if not request.withinLimits then

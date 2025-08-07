@@ -115,6 +115,7 @@ end
 -- Generar asteroides con sistema 3D y límites del mundo
 function MapGenerator.generateBalancedAsteroids(chunk, chunkX, chunkY, densities)
     local asteroids = {}
+    local asteroidCount = 0
     local biomeParams = chunk.biomeParameters
     local falseHeight = biomeParams.depth or 0.5
     
@@ -225,6 +226,7 @@ function MapGenerator.generateBalancedAsteroids(chunk, chunkX, chunkY, densities
                 }
                 
                 table.insert(asteroids, asteroid)
+                asteroidCount = asteroidCount + 1
                 -- No asignar a chunk.tiles[y][x] aquí, ya que 'y' y 'x' no son índices de chunk
             end
             
@@ -233,10 +235,14 @@ function MapGenerator.generateBalancedAsteroids(chunk, chunkX, chunkY, densities
     end
     
     chunk.objects.asteroids = asteroids
+    chunk.objectCount = (chunk.objectCount or 0) + asteroidCount
 end
 
 -- Generar nebulosas con sistema 3D y límites del mundo
 function MapGenerator.generateBalancedNebulae(chunk, chunkX, chunkY, densities)
+    local nebulaDensity = densities.nebulae or MapConfig.density.nebulae
+    local nebulaObjects = {}
+    local nebulaCount = 0
     local nebulaDensity = densities.nebulae or MapConfig.density.nebulae
     local nebulaObjects = {}
     
@@ -376,12 +382,14 @@ function MapGenerator.generateBalancedNebulae(chunk, chunkX, chunkY, densities)
             end
             
             table.insert(nebulaObjects, nebula)
+            nebulaCount = nebulaCount + 1
         end
         
         ::continue_nebula::
     end
     
     chunk.objects.nebulae = nebulaObjects
+    chunk.objectCount = (chunk.objectCount or 0) + nebulaCount
 end
 
 -- Generar objetos especiales con sistema 3D y límites del mundo
@@ -524,6 +532,7 @@ end
 
 -- Generar estrellas con sistema 3D y límites del mundo
 function MapGenerator.generateBalancedStars(chunk, chunkX, chunkY, densities)
+    local starCount = 0
     local stars = {}
     
     -- Obtener los límites de generación expandidos del chunk
@@ -547,7 +556,7 @@ function MapGenerator.generateBalancedStars(chunk, chunkX, chunkY, densities)
     local limitFadeFactor = MapGenerator.calculateLimitFadeFactor(chunkWorldX, chunkWorldY)
     
     local starDensity = (densities.stars or MapConfig.density.stars) * limitFadeFactor
-    local baseNumStars = math.floor(MapConfig.chunk.size * MapConfig.chunk.size * starDensity * 0.4)
+    local baseNumStars = math.floor(MapConfig.chunk.size * MapConfig.chunk.size * starDensity * 0.2)
     
     -- Obtener parámetros 3D del bioma
     local biomeParams = chunk.biomeParameters or BiomeSystem.generateSpaceParameters(chunkX, chunkY)
@@ -717,6 +726,7 @@ function MapGenerator.generateBalancedStars(chunk, chunkX, chunkY, densities)
                 end
                 
                 table.insert(stars, star)
+                starCount = starCount + 1
                 
                 ::continue_star::  
             end
@@ -724,6 +734,7 @@ function MapGenerator.generateBalancedStars(chunk, chunkX, chunkY, densities)
     end
     
     chunk.objects.stars = stars
+    chunk.objectCount = (chunk.objectCount or 0) + starCount
 end
 
 -- Generar chunk completo con sistema 3D y límites del mundo

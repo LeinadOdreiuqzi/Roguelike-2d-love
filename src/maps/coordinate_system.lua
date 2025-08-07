@@ -3,8 +3,6 @@
 local CoordinateSystem = {}
 
 -- LÍMITES DEL MUNDO (200k x 200k)
-CoordinateSystem.WORLD_LIMIT = 200000  -- ±200,000 unidades en ambos ejes
-
 -- Configuración del sistema
 CoordinateSystem.config = {
     -- Tamaño de cada sector (en unidades del juego)
@@ -16,6 +14,8 @@ CoordinateSystem.config = {
     -- Zona de amortiguamiento cerca de los límites
     bufferZone = 10000  -- 10k unidades de buffer
 }
+
+CoordinateSystem.WORLD_LIMIT = 200000  -- ±200,000 unidades en ambos ejes
 
 -- Estado actual del sistema
 CoordinateSystem.state = {

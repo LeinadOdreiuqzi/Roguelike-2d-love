@@ -20,7 +20,7 @@ OptimizedRenderer.config = {
     -- Frustum culling
     culling = {
         enabled = true,
-        margin = 100,           -- Margen extra para culling
+        margin = 50,           -- Margen extra para culling
         hierarchical = true,    -- Culling jerárquico
         temporal = true         -- Culling temporal (basado en movimiento)
     },
@@ -28,14 +28,14 @@ OptimizedRenderer.config = {
     -- Batch rendering
     batching = {
         enabled = true,
-        maxBatchSize = 10000,   -- Máximo objetos por batch
+        maxBatchSize = 5000,   -- Máximo objetos por batch
         autoSort = true,        -- Ordenamiento automático por textura/tipo
         dynamicBatching = true  -- Batching dinámico basado en visibilidad
     },
     
     -- Optimizaciones de performance
     performance = {
-        maxDrawCalls = 300,     -- Máximo draw calls por frame
+        maxDrawCalls = 150,     -- Máximo draw calls por frame
         targetFrameTime = 0.016, -- Target 60 FPS (16.6ms)
         adaptiveQuality = true,  -- Calidad adaptativa basada en performance
         earlyZReject = true     -- Rechazo temprano de objetos no visibles
@@ -54,10 +54,6 @@ OptimizedRenderer.config = {
 OptimizedRenderer.state = {
     -- Batches de renderizado
     batches = {
-        stars = nil,
-        asteroids = nil,
-        nebulae = nil,
-        stations = nil,
         effects = nil
     },
     
@@ -90,9 +86,7 @@ OptimizedRenderer.state = {
 -- Inicializar el renderizador
 function OptimizedRenderer.init()
     -- Crear batches si el batching está habilitado
-    if OptimizedRenderer.config.batching.enabled then
-        OptimizedRenderer.createSpriteBatches()
-    end
+
     
     -- Inicializar cache de visibilidad
     OptimizedRenderer.state.visibilityCache = {}
@@ -106,24 +100,7 @@ function OptimizedRenderer.init()
     print("Frustum Culling: " .. (OptimizedRenderer.config.culling.enabled and "ON" or "OFF"))
 end
 
--- Crear sprite batches para diferentes tipos de objetos
-function OptimizedRenderer.createSpriteBatches()
-    if not love.graphics then return end
-    
-    -- Crear textura base para estrellas
-    local starCanvas = love.graphics.newCanvas(8, 8)
-    love.graphics.setCanvas(starCanvas)
-    love.graphics.setColor(1, 1, 1, 1)
-    love.graphics.circle("fill", 4, 4, 3)
-    love.graphics.setCanvas()
-    
-    -- Crear batches
-    OptimizedRenderer.state.batches.stars = love.graphics.newSpriteBatch(
-        starCanvas, OptimizedRenderer.config.batching.maxBatchSize
-    )
-    
-    print("SpriteBatches created successfully")
-end
+
 
 -- Calcular nivel de LOD basado en distancia y zoom
 function OptimizedRenderer.calculateLOD(objectX, objectY, camera)
@@ -173,10 +150,12 @@ function OptimizedRenderer.isObjectVisible(objectX, objectY, objectSize, camera)
     local screenWidth = love.graphics.getWidth()
     local screenHeight = love.graphics.getHeight()
     
-    return screenX + screenSize >= -margin and
-           screenX - screenSize <= screenWidth + margin and
-           screenY + screenSize >= -margin and
-           screenY - screenSize <= screenHeight + margin
+    local isVisible = screenX + screenSize >= -margin and
+                      screenX - screenSize <= screenWidth + margin and
+                      screenY + screenSize >= -margin and
+                      screenY - screenSize <= screenHeight + margin
+    
+    return isVisible
 end
 
 -- Frustum culling jerárquico para chunks
@@ -304,32 +283,51 @@ end
 
 -- Renderizar estrella con LOD
 function OptimizedRenderer.renderStar(star, x, y, size, lodLevel)
-    local r, g, b, a = love.graphics.getColor()
-    
-    -- Ajustar propiedades según LOD
-    local alpha = star.color and star.color[4] or 1
+    local batch = OptimizedRenderer.state.batches.stars
+    if not batch then return end
+
+    local color = star.color or {1, 1, 1, 1}
+    local alpha = color[4] or 1
     local brightness = star.brightness or 1
-    
+    local finalColor = {color[1], color[2], color[3], alpha}
+
+    local scale = size / 8 -- Base star canvas is 8x8
+
     if lodLevel >= 3 then
-        -- LOD mínimo - solo puntos
-        love.graphics.setColor(star.color[1], star.color[2], star.color[3], alpha * 0.8)
-        love.graphics.points(x, y)
+        -- LOD mínimo - puntos (usando el batch con escala mínima)
+        batch:add(0, x, y, 0, scale * 0.1, scale * 0.1, 4, 4, 0, 0, finalColor[1], finalColor[2], finalColor[3], finalColor[4] * 0.8)
     elseif lodLevel >= 2 then
-        -- LOD bajo - círculos simples
-        love.graphics.setColor(star.color[1], star.color[2], star.color[3], alpha * 0.9)
-        love.graphics.circle("fill", x, y, math.max(1, size * 0.5), 6)
+        -- LOD bajo - círculos simples (usando el batch)
+        batch:add(0, x, y, 0, scale * 0.5, scale * 0.5, 4, 4, 0, 0, finalColor[1], finalColor[2], finalColor[3], finalColor[4] * 0.9)
     elseif lodLevel >= 1 then
-        -- LOD medio - círculos con brillo
-        love.graphics.setColor(star.color[1], star.color[2], star.color[3], alpha * 0.3)
-        love.graphics.circle("fill", x, y, size * 1.5, 8)
-        love.graphics.setColor(star.color[1], star.color[2], star.color[3], alpha)
-        love.graphics.circle("fill", x, y, size, 8)
+        -- LOD medio - círculos con sombra
+        love.graphics.setColor(finalColor[1], finalColor[2], finalColor[3], finalColor[4] * 0.9)
+        love.graphics.circle("fill", x, y, size * 0.8, 8)
+        love.graphics.setColor(0, 0, 0, 0.2)
+        love.graphics.circle("fill", x + size * 0.1, y + size * 0.1, size * 0.7, 8)
     else
         -- LOD alto - efectos completos
         OptimizedRenderer.renderStarHighDetail(star, x, y, size)
     end
+end
+
+-- Renderizar estrella con alto detalle
+function OptimizedRenderer.renderStarHighDetail(star, x, y, size)
+    local time = love.timer.getTime()
+    local twinkle = 0.8 + 0.2 * math.sin(time * 2 + (star.twinkle or 0))
+    local color = star.color or {1, 1, 1, 1}
     
-    love.graphics.setColor(r, g, b, a)
+    -- Halo exterior
+    love.graphics.setColor(color[1], color[2], color[3], color[4] * 0.2 * twinkle)
+    love.graphics.circle("fill", x, y, size * 2, 12)
+    
+    -- Núcleo brillante
+    love.graphics.setColor(color[1], color[2], color[3], color[4] * twinkle)
+    love.graphics.circle("fill", x, y, size, 8)
+    
+    -- Punto central
+    love.graphics.setColor(1, 1, 1, twinkle)
+    love.graphics.circle("fill", x, y, size * 0.3, 4)
 end
 
 -- Renderizar estrella con alto detalle
@@ -360,16 +358,14 @@ function OptimizedRenderer.renderNebula(nebula, x, y, size, lodLevel)
     if lodLevel >= 2 then
         -- LOD bajo - círculo simple
         love.graphics.setColor(color[1], color[2], color[3], color[4] * intensity * 0.8)
-        love.graphics.circle("fill", x, y, size * 0.8, 8)
+        love.graphics.circle("fill", x, y, size * 0.8)
     else
         -- LOD alto - efecto de pulso
         local time = love.timer.getTime()
         local pulse = 0.9 + 0.1 * math.sin(time * 0.8)
-        
         love.graphics.setColor(color[1], color[2], color[3], color[4] * intensity * pulse)
-        love.graphics.circle("fill", x, y, size * pulse, 16)
+        love.graphics.circle("fill", x, y, size * pulse)
     end
-    
     love.graphics.setColor(r, g, b, a)
 end
 
@@ -388,25 +384,17 @@ function OptimizedRenderer.renderAsteroid(asteroid, x, y, size, lodLevel)
         love.graphics.circle("fill", x, y, size, 6)
     elseif lodLevel >= 1 then
         -- LOD medio - círculo con sombra
-        love.graphics.setColor(0.1, 0.1, 0.1, 0.3)
-        love.graphics.circle("fill", x + 1, y + 1, size)
         love.graphics.setColor(color[1], color[2], color[3], 1)
         love.graphics.circle("fill", x, y, size, 8)
+        love.graphics.setColor(0, 0, 0, 0.3)
+        love.graphics.circle("fill", x + size * 0.3, y + size * 0.3, size * 0.8, 8)
     else
-        -- LOD alto - detalles completos
-        love.graphics.setColor(0.1, 0.1, 0.1, 0.5)
-        love.graphics.circle("fill", x + 2, y + 2, size + 1)
+        -- LOD alto - asteroide detallado (sin batching por ahora)
         love.graphics.setColor(color[1], color[2], color[3], 1)
-        love.graphics.circle("fill", x, y, size)
-        
-        -- Detalles de superficie
-        love.graphics.setColor(color[1] * 0.7, color[2] * 0.7, color[3] * 0.7, 1)
-        for i = 1, 3 do
-            local angle = (i / 3) * math.pi * 2
-            local detailX = x + math.cos(angle) * size * 0.3
-            local detailY = y + math.sin(angle) * size * 0.3
-            love.graphics.circle("fill", detailX, detailY, size * 0.15)
-        end
+        love.graphics.circle("fill", x, y, size, 12)
+        love.graphics.setColor(0, 0, 0, 0.4)
+        love.graphics.circle("fill", x + size * 0.4, y + size * 0.4, size * 0.7, 12)
+        love.graphics.circle("fill", x - size * 0.2, y + size * 0.3, size * 0.5, 12)
     end
     
     love.graphics.setColor(r, g, b, a)
@@ -415,37 +403,30 @@ end
 -- Renderizar estación con LOD
 function OptimizedRenderer.renderStation(station, x, y, size, lodLevel)
     local r, g, b, a = love.graphics.getColor()
+    local color = station.color or {0.6, 0.6, 0.8, 1}
     
     if lodLevel >= 2 then
         -- LOD bajo - cuadrado simple
-        love.graphics.setColor(0.6, 0.6, 0.8, 1)
-        love.graphics.rectangle("fill", x - size/2, y - size/2, size, size)
+        love.graphics.setColor(color[1], color[2], color[3], 1)
+        love.graphics.rectangle("fill", x - size / 2, y - size / 2, size, size)
     else
-        -- LOD alto - detalles completos
+        -- LOD alto - círculo con rotación y luces parpadeantes
+        local time = love.timer.getTime()
+        local rotation = time * 0.5
+        
+        love.graphics.setColor(color[1], color[2], color[3], 1)
         love.graphics.push()
         love.graphics.translate(x, y)
-        love.graphics.rotate((station.rotation or 0) + love.timer.getTime() * 0.1)
-        
-        -- Sombra
-        love.graphics.setColor(0.1, 0.1, 0.1, 0.3)
-        love.graphics.circle("fill", 2, 2, size * 1.1)
-        
-        -- Cuerpo principal
-        love.graphics.setColor(0.6, 0.6, 0.8, 1)
-        love.graphics.circle("fill", 0, 0, size)
-        
-        -- Detalles
-        love.graphics.setColor(0.3, 0.5, 0.8, 1)
-        love.graphics.circle("line", 0, 0, size * 0.8)
+        love.graphics.rotate(rotation)
+        love.graphics.rectangle("fill", -size / 2, -size / 2, size, size)
+        love.graphics.pop()
         
         -- Luces parpadeantes
-        if math.sin(love.timer.getTime() * 3) > 0 then
-            love.graphics.setColor(0, 1, 0, 1)
-            love.graphics.circle("fill", size * 0.7, 0, 2)
-            love.graphics.circle("fill", -size * 0.7, 0, 2)
-        end
-        
-        love.graphics.pop()
+        local blink = math.sin(time * 5) > 0.5 and 1 or 0.2
+        love.graphics.setColor(1, 0, 0, blink)
+        love.graphics.circle("fill", x + size * 0.6, y, size * 0.1)
+        love.graphics.setColor(0, 1, 0, blink)
+        love.graphics.circle("fill", x - size * 0.6, y, size * 0.1)
     end
     
     love.graphics.setColor(r, g, b, a)
@@ -517,6 +498,10 @@ function OptimizedRenderer.render(visibleChunks, camera)
     for _, chunk in ipairs(visibleChunks) do
         if OptimizedRenderer.isChunkVisible(chunk, camera) then
             OptimizedRenderer.renderChunk(chunk, camera)
+        else
+            -- Incrementar objetos culled si el chunk no es visible
+            -- Esto es una estimación, ya que no sabemos cuántos objetos hay en el chunk sin procesarlo
+            OptimizedRenderer.state.stats.objectsCulled = OptimizedRenderer.state.stats.objectsCulled + (chunk.objectCount or 100) -- Asumir un número promedio de objetos
         end
     end
     
